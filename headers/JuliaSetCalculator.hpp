@@ -1,0 +1,21 @@
+#ifndef JULIASETCALCULATOR_HPP
+#define JULIASETCALCULATOR_HPP
+
+#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <complex>
+
+class JuliaSetCalculator {
+public:
+    JuliaSetCalculator();
+
+    void calculate(sf::Image& image, const std::complex<double>& c_constant, 
+        int max_iterations, 
+        double view_x_min, double view_x_max, double view_y_min, double view_y_max);
+
+private:
+    double map(double value, double in_min, double in_max, double out_min, double out_max);
+    sf::Color pickColor(int n, int max_iterations);
+};
+
+#endif
