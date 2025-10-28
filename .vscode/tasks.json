@@ -1,0 +1,42 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Julia Project (SFML)",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-g",
+                "${workspaceFolder}/main.cpp",
+                "-o",
+                "${workspaceFolder}/JuliaSet.exe",
+                
+                // --- Include Path ---
+                "-I C:/msys64/ucrt64/include",
+                
+                // --- Library Path ---
+                "-L C:/msys64/ucrt64/lib",
+        
+                // --- SFML Libraries to Link (Dynamic) ---
+                "-lsfml-graphics",
+                "-lsfml-window",
+                "-lsfml-system"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
