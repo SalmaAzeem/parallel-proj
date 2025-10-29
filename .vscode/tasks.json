@@ -6,18 +6,25 @@
             "type": "shell",
             "command": "g++",
             "args": [
-                "-g",
+                "-g", // Include debug symbols
+
+                // --- List ALL your .cpp source files ---
                 "${workspaceFolder}/main.cpp",
+                "${workspaceFolder}/src/JuliaSetCalculator.cpp",
+                "${workspaceFolder}/src/SFMLWindowDrawer.cpp",
+
+                // --- Output Executable ---
                 "-o",
                 "${workspaceFolder}/JuliaSet.exe",
-                
-                // --- Include Path ---
-                "-I C:/msys64/ucrt64/include",
-                
-                // --- Library Path ---
+
+                // --- Include Paths (Where to find .hpp files) ---
+                "-I C:/msys64/ucrt64/include",    // For SFML
+                "-I ${workspaceFolder}/headers", // For your project headers
+
+                // --- Library Paths (Where to find .lib/.a files) ---
                 "-L C:/msys64/ucrt64/lib",
-        
-                // --- SFML Libraries to Link (Dynamic) ---
+
+                // --- Libraries to Link ---
                 "-lsfml-graphics",
                 "-lsfml-window",
                 "-lsfml-system"
