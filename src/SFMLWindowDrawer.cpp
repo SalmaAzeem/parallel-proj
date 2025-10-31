@@ -1,10 +1,10 @@
 #include "../headers/SFMLWindowDrawer.hpp"
+#include "../headers/SequentialCalculator.hpp"
 #include <iostream>
 #include <sstream>
 
 SFMLWindowDrawer::SFMLWindowDrawer(unsigned int width, unsigned int height, const std::string& title)
     : window(sf::VideoMode(width, height), title),
-      calculator(),
       current_c(-0.8, 0.156),
       current_poly_degree(2),
       current_max_iterations(100),
@@ -14,7 +14,7 @@ SFMLWindowDrawer::SFMLWindowDrawer(unsigned int width, unsigned int height, cons
       needsRecalculation(true)
 {
     fractalImage.create(width, height, sf::Color::Black);
-
+    calculator = new SequentialCalculator();
     if (!fractalTexture.create(width, height)) {
         std::cerr << "Error: Could not create sf::Texture!" << std::endl;
         window.close();
@@ -74,10 +74,10 @@ void SFMLWindowDrawer::processEvents() {
             bool c_changed = false;
             switch (event.key.code) {
                 // Theme controls
-                case sf::Keyboard::Num1:    case sf::Keyboard::Numpad1: calculator.setTheme(1); needsRecalculation = true; break;
-                case sf::Keyboard::Num2:    case sf::Keyboard::Numpad2: calculator.setTheme(2); needsRecalculation = true; break;
-                case sf::Keyboard::Num3:    case sf::Keyboard::Numpad3: calculator.setTheme(3); needsRecalculation = true; break;
-                case sf::Keyboard::Num4:    case sf::Keyboard::Numpad4: calculator.setTheme(4); needsRecalculation = true; break;
+                case sf::Keyboard::Num1:    case sf::Keyboard::Numpad1: calculator->setTheme(1); needsRecalculation = true; break;
+                case sf::Keyboard::Num2:    case sf::Keyboard::Numpad2: calculator->setTheme(2); needsRecalculation = true; break;
+                case sf::Keyboard::Num3:    case sf::Keyboard::Numpad3: calculator->setTheme(3); needsRecalculation = true; break;
+                case sf::Keyboard::Num4:    case sf::Keyboard::Numpad4: calculator->setTheme(4); needsRecalculation = true; break;
                 
                 // Polynomial control
                 case sf::Keyboard::P:
@@ -119,7 +119,7 @@ void SFMLWindowDrawer::updateUI() {
     textParams.setString(ss_params.str());
 
     std::stringstream ss_theme;
-    ss_theme << "Theme: " << calculator.getTheme();
+    ss_theme << "Theme: " << calculator->getTheme();
     textTheme.setString(ss_theme.str());
 
     // Title is static, but we'll set it here
@@ -141,7 +141,7 @@ void SFMLWindowDrawer::render() {
 
 void SFMLWindowDrawer::recalculateFractal() {
     std::cout << "Recalculating fractal..." << std::endl;
-    calculator.calculate_polynomial(
+    calculator->calculate_polynomial(
         fractalImage, 
         current_c, 
         current_max_iterations, 

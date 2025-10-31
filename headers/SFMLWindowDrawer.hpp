@@ -28,7 +28,7 @@ private:
     sf::Texture fractalTexture;
     sf::Sprite fractalSprite;
 
-    JuliaSetCalculator calculator;
+    JuliaSetCalculator* calculator;
 
     // Fractal parameters
     std::complex<double> current_c;

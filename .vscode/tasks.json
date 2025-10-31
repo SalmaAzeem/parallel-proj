@@ -7,11 +7,13 @@
             "command": "g++",
             "args": [
                 "-g", // Include debug symbols
+                "-fopenmp", // Enable OpenMP
 
                 // --- List ALL your .cpp source files ---
                 "${workspaceFolder}/main.cpp",
                 "${workspaceFolder}/src/JuliaSetCalculator.cpp",
                 "${workspaceFolder}/src/SFMLWindowDrawer.cpp",
+                "${workspaceFolder}/src/SequentialCalculator.cpp",
 
                 // --- Output Executable ---
                 "-o",
