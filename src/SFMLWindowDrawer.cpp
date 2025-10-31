@@ -1,5 +1,5 @@
 #include "../headers/SFMLWindowDrawer.hpp"
-#include "../headers/SequentialCalculator.hpp"
+#include <typeinfo>
 #include <iostream>
 #include <sstream>
 
@@ -14,7 +14,9 @@ SFMLWindowDrawer::SFMLWindowDrawer(unsigned int width, unsigned int height, cons
       needsRecalculation(true)
 {
     fractalImage.create(width, height, sf::Color::Black);
-    calculator = new SequentialCalculator();
+    sequentialCalc = new SequentialCalculator();
+    parallelCalc = new ParallelCalculator();
+    calculator = sequentialCalc; // Start with sequential
     if (!fractalTexture.create(width, height)) {
         std::cerr << "Error: Could not create sf::Texture!" << std::endl;
         window.close();
@@ -29,6 +31,11 @@ SFMLWindowDrawer::SFMLWindowDrawer(unsigned int width, unsigned int height, cons
         window.close();
     }
     setupUI();
+}
+
+SFMLWindowDrawer::~SFMLWindowDrawer() {
+    delete sequentialCalc;
+    delete parallelCalc;
 }
 
 void SFMLWindowDrawer::setupUI() {
@@ -53,7 +60,7 @@ void SFMLWindowDrawer::setupUI() {
     textControls.setFillColor(sf::Color(180, 180, 180));
     unsigned int windowHeight = window.getSize().y;
     textControls.setPosition(10, windowHeight - 70);
-    textControls.setString("CONTROLS:\n[1-4]: Change Theme  |  [P]: Cycle Poly (2,3,4)\n[Arrows]: Change C-Value  |  [Esc]: Exit");
+    textControls.setString("CONTROLS:\n[1-4]: Theme | [P]: Cycle Poly | [S]: Toggle Parallel\n[Arrows]: Change C-Value | [Esc]: Exit");
 };
 
 void SFMLWindowDrawer::run() {
@@ -86,11 +93,24 @@ void SFMLWindowDrawer::processEvents() {
                     needsRecalculation = true;
                     break;
 
+                case sf::Keyboard::S:
+                    if (calculator == sequentialCalc) {
+                        calculator = parallelCalc;
+                        std::cout << "Switched to Parallel Calculator" << std::endl;
+                    } else {
+                        calculator = sequentialCalc;
+                        std::cout << "Switched to Sequential Calculator" << std::endl;
+                    }
+                    needsRecalculation = true;
+                    break;
+
                 // C-value controls
                 case sf::Keyboard::Up:    current_c.imag(current_c.imag() + c_change_step); c_changed = true; break;
                 case sf::Keyboard::Down:  current_c.imag(current_c.imag() - c_change_step); c_changed = true; break;
                 case sf::Keyboard::Left:  current_c.real(current_c.real() - c_change_step); c_changed = true; break;
                 case sf::Keyboard::Right: current_c.real(current_c.real() + c_change_step); c_changed = true; break;
+
+
                 
                 case sf::Keyboard::Escape: window.close(); break;
                 default: break;
@@ -122,8 +142,14 @@ void SFMLWindowDrawer::updateUI() {
     ss_theme << "Theme: " << calculator->getTheme();
     textTheme.setString(ss_theme.str());
 
-    // Title is static, but we'll set it here
-    textTitle.setString("Julia Set Explorer");
+    // Update title to show current mode
+    std::string mode = "Sequential";
+    if (typeid(*calculator) == typeid(ParallelCalculator)) {
+        mode = "Parallel";
+    }
+    std::stringstream ss_title;
+    ss_title << "Julia Set Explorer (" << mode << ")";
+    textTitle.setString(ss_title.str());
 }
 
 void SFMLWindowDrawer::render() {

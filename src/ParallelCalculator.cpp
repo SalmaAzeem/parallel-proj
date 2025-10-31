@@ -1,4 +1,4 @@
-#include "../headers/SequentialCalculator.hpp"
+#include "../headers/ParallelCalculator.hpp"
 #include <cmath>
 #include <stdlib.h>
 #include <omp.h>
@@ -7,7 +7,7 @@
 
 
 // this function doesnt return anything, it simply sets the pixel color based on the number of iterations
-void SequentialCalculator::calculate_polynomial(sf::Image& image, const std::complex<double>& c_constant, 
+void ParallelCalculator::calculate_polynomial(sf::Image& image, const std::complex<double>& c_constant, 
     int max_iterations, int poly_degree,
     double view_x_min, double view_x_max, double view_y_min, double view_y_max) {
         // unsigned because they have more range for image dimensions since removing the sign bit allows for an extra bit of magnitude :D 
@@ -16,6 +16,7 @@ void SequentialCalculator::calculate_polynomial(sf::Image& image, const std::com
         // Iterate over each pixel in the image
     long double start_time = omp_get_wtime();
 
+    #pragma omp parallel for collapse(2)
     for (unsigned int px = 0; px < width; ++px) {
         for (unsigned int py = 0; py < height; ++py) {
             double x0 = map(px, 0, width, view_x_min, view_x_max);

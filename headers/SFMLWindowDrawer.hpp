@@ -3,12 +3,15 @@
 
 #include <SFML/Graphics.hpp>
 #include "JuliaSetCalculator.hpp"
+#include "SequentialCalculator.hpp"
+#include "ParallelCalculator.hpp"
 #include <string>
 #include <complex>
 
 class SFMLWindowDrawer {
 public:
     SFMLWindowDrawer(unsigned int width, unsigned int height, const std::string& title);
+    ~SFMLWindowDrawer();
     void run();
 
 private:
@@ -28,6 +31,8 @@ private:
     sf::Texture fractalTexture;
     sf::Sprite fractalSprite;
 
+    SequentialCalculator* sequentialCalc;
+    ParallelCalculator* parallelCalc;
     JuliaSetCalculator* calculator;
 
     // Fractal parameters

@@ -14,6 +14,7 @@
                 "${workspaceFolder}/src/JuliaSetCalculator.cpp",
                 "${workspaceFolder}/src/SFMLWindowDrawer.cpp",
                 "${workspaceFolder}/src/SequentialCalculator.cpp",
+                "${workspaceFolder}/src/ParallelCalculator.cpp",
 
                 // --- Output Executable ---
                 "-o",
