@@ -49,6 +49,7 @@ private:
     sf::Text textTitle;
     sf::Text textParams;
     sf::Text textTheme;
+    sf::Text textParallel;
     sf::Text textControls;
 };
 

@@ -2,6 +2,10 @@
 #include <typeinfo>
 #include <iostream>
 #include <sstream>
+#include <omp.h>
+#include <thread>
+
+int maxThreads = std::thread::hardware_concurrency();
 
 SFMLWindowDrawer::SFMLWindowDrawer(unsigned int width, unsigned int height, const std::string& title)
     : window(sf::VideoMode(width, height), title),
@@ -60,7 +64,12 @@ void SFMLWindowDrawer::setupUI() {
     textControls.setFillColor(sf::Color(180, 180, 180));
     unsigned int windowHeight = window.getSize().y;
     textControls.setPosition(10, windowHeight - 70);
-    textControls.setString("CONTROLS:\n[1-4]: Theme | [P]: Cycle Poly | [S]: Toggle Parallel\n[Arrows]: Change C-Value | [Esc]: Exit");
+    textControls.setString("CONTROLS:\n[1-4]: Theme | [P]: Cycle Poly | [S]: Toggle Parallel\n[Arrows]: C-Value | [T/G]: Threads | [D]: Default Threads | [H]: Schedule | [Esc]: Exit");
+
+    textParallel.setFont(font);
+    textParallel.setCharacterSize(18);
+    textParallel.setFillColor(sf::Color::White);
+    textParallel.setPosition(10, 90);
 };
 
 void SFMLWindowDrawer::run() {
@@ -104,6 +113,44 @@ void SFMLWindowDrawer::processEvents() {
                     needsRecalculation = true;
                     break;
 
+                // Parallel controls
+                case sf::Keyboard::H:
+                    if (calculator == parallelCalc) {
+                        std::string currentSchedule = parallelCalc->getSchedule();
+                        if (currentSchedule == "static") {
+                            parallelCalc->setSchedule("dynamic");
+                        } else if (currentSchedule == "dynamic") {
+                            parallelCalc->setSchedule("guided");
+                        } else { 
+                            parallelCalc->setSchedule("static");
+                        }
+                        needsRecalculation = true;
+                    }
+                    break;
+                case sf::Keyboard::T: // Increase threads
+                    if (calculator == parallelCalc) {
+                        int currentThreads = parallelCalc->getNumThreads();
+                        if (currentThreads < maxThreads) {
+                            parallelCalc->setNumThreads((currentThreads + 1)%maxThreads);
+                            needsRecalculation = true;
+                        }
+                    }
+                    break;
+                case sf::Keyboard::G: // Decrease threads
+                    if (calculator == parallelCalc) {
+                        int currentThreads = parallelCalc->getNumThreads();
+                        if (currentThreads > 0) { // Allow setting to 0 (default)
+                            parallelCalc->setNumThreads((currentThreads - 1)%maxThreads);
+                            needsRecalculation = true;
+                        }
+                    }
+                    break;
+                case sf::Keyboard::D: // Set threads to default
+                    if (calculator == parallelCalc) {
+                        parallelCalc->setNumThreads(0);
+                        needsRecalculation = true;
+                    }
+                    break;
                 // C-value controls
                 case sf::Keyboard::Up:    current_c.imag(current_c.imag() + c_change_step); c_changed = true; break;
                 case sf::Keyboard::Down:  current_c.imag(current_c.imag() - c_change_step); c_changed = true; break;
@@ -150,6 +197,20 @@ void SFMLWindowDrawer::updateUI() {
     std::stringstream ss_title;
     ss_title << "Julia Set Explorer (" << mode << ")";
     textTitle.setString(ss_title.str());
+
+    // Update parallel info text
+    if (typeid(*calculator) == typeid(ParallelCalculator)) {
+        std::stringstream ss_parallel;
+        int numThreads = parallelCalc->getNumThreads();
+
+        ss_parallel << "Threads: " << (numThreads > 0 ? std::to_string(numThreads) : "Default") 
+                    << " of " << maxThreads << " (Max)";
+        ss_parallel << " | Schedule: ";
+        ss_parallel << parallelCalc->getSchedule();
+        textParallel.setString(ss_parallel.str());
+    } else {
+        textParallel.setString(""); // Hide when in sequential mode
+    }
 }
 
 void SFMLWindowDrawer::render() {
@@ -160,6 +221,7 @@ void SFMLWindowDrawer::render() {
     window.draw(textTitle);
     window.draw(textParams);
     window.draw(textTheme);
+    window.draw(textParallel);
     window.draw(textControls);
 
     window.display();
