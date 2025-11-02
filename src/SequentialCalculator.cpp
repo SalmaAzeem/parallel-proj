@@ -7,7 +7,7 @@
 
 
 // this function doesnt return anything, it simply sets the pixel color based on the number of iterations
-void SequentialCalculator::calculate_polynomial(sf::Image& image, const std::complex<double>& c_constant, 
+double SequentialCalculator::calculate_polynomial(sf::Image& image, const std::complex<double>& c_constant, 
     int max_iterations, int poly_degree,
     double view_x_min, double view_x_max, double view_y_min, double view_y_max) {
         // unsigned because they have more range for image dimensions since removing the sign bit allows for an extra bit of magnitude :D 
@@ -37,5 +37,7 @@ void SequentialCalculator::calculate_polynomial(sf::Image& image, const std::com
     }
 
     long double end_time = omp_get_wtime();
-    std::cout<<"Calculation took "<< end_time-start_time<<" seconds\n";
+    double elapsed_time = end_time - start_time;
+    std::cout<<"Calculation took "<< elapsed_time <<" seconds\n";
+    return elapsed_time;
 }

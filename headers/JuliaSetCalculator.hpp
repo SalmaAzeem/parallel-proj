@@ -8,7 +8,7 @@
 class JuliaSetCalculator {
 public:
     JuliaSetCalculator(int theme = 1) : Theme(theme) {};
-    virtual void calculate_polynomial (sf::Image& image, const std::complex<double>& c_constant, 
+    virtual double calculate_polynomial (sf::Image& image, const std::complex<double>& c_constant, 
         int max_iterations, int poly_degree,
         double view_x_min, double view_x_max, double view_y_min, double view_y_max) = 0;
     void setTheme(int theme);

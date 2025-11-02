@@ -54,7 +54,7 @@ void ParallelCalculator::calculate_pixel(unsigned int px, unsigned int py, sf::I
 }
 
 // this function doesnt return anything, it simply sets the pixel color based on the number of iterations
-void ParallelCalculator::calculate_polynomial(sf::Image& image, const std::complex<double>& c_constant, 
+double ParallelCalculator::calculate_polynomial(sf::Image& image, const std::complex<double>& c_constant, 
     int max_iterations, int poly_degree,
     double view_x_min, double view_x_max, double view_y_min, double view_y_max) {
         // unsigned because they have more range for image dimensions since removing the sign bit allows for an extra bit of magnitude :D 
@@ -98,5 +98,7 @@ void ParallelCalculator::calculate_polynomial(sf::Image& image, const std::compl
     }
 
     long double end_time = omp_get_wtime();
-    std::cout<<"Calculation took "<< end_time-start_time<<" seconds\n";
+    long double elapsed_time = end_time - start_time;
+    std::cout<<"Calculation took "<< elapsed_time <<" seconds\n";
+    return elapsed_time;
 }
