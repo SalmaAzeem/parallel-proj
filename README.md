@@ -34,6 +34,14 @@ pacman -S mingw-w64-ucrt-x86_64-sfml
 ### 3. Configure Environemnt Variables
 To ensure that your system can locate the SFML DLLs at runtime, you need to add the SFML `bin` directory to your system's `PATH` environment variable. You can easily locate in the `C:\msys64\ucrt64\bin` directory.
 
+### 4. Run MPI
+```bash
+ mpic++ main.cpp src/*.cpp -Iheaders -lsfml-graphics -lsfml-window -lsfml-system -fopenmp -o mpi
+```
+
+```bash
+mpirun -np 4 --oversubscribe ./mpi
+```
 ---
 ### You're now set up to compile and run C++ projects using SFML in VS Code on Windows!
 

@@ -8,6 +8,12 @@
 #include <string>
 #include <complex>
 
+enum class CalcMode {
+    SEQUENTIAL,
+    PARALLEL_OMP,
+    DISTRIBUTED_MPI
+};
+
 class SFMLWindowDrawer {
 public:
     SFMLWindowDrawer(unsigned int width, unsigned int height, const std::string& title);
@@ -34,6 +40,8 @@ private:
     SequentialCalculator* sequentialCalc;
     ParallelCalculator* parallelCalc;
     JuliaSetCalculator* calculator;
+
+    CalcMode currentMode;
 
     // Fractal parameters
     std::complex<double> current_c;

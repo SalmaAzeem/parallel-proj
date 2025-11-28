@@ -4,37 +4,59 @@
 #include <sstream>
 #include <omp.h>
 #include <thread>
+#include <mpi.h>
 
 int maxThreads = std::thread::hardware_concurrency();
 
+struct FractalState 
+{
+    double c_real;
+    double c_imag;
+    double view_x_min;
+    double view_x_max;
+    double view_y_min;
+    double view_y_max;
+    int max_iter;
+    int poly_degrees;
+    int command;
+};
+
 SFMLWindowDrawer::SFMLWindowDrawer(unsigned int width, unsigned int height, const std::string& title)
-    : window(sf::VideoMode(width, height), title),
+    :
       current_c(-0.8, 0.156),
       current_poly_degree(2),
       current_max_iterations(100),
       view_x_min(-2.0), view_x_max(2.0),
       view_y_min(-2.0), view_y_max(2.0),
       c_change_step(0.001),
-      needsRecalculation(true)
+      needsRecalculation(true),
+      currentMode(CalcMode::SEQUENTIAL)
 {
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    if (rank == 0) {
+        window.create(sf::VideoMode(width, height), title);
+
+        if (!fractalTexture.create(width, height)) {
+            std::cerr << "Error: Could not create sf::Texture" << std::endl;
+            window.close();
+        }
+        fractalSprite.setTexture(fractalTexture);
+        // font loader
+        if (!font.loadFromFile("arial.ttf")) {
+            std::cerr << "Error: Could not load font 'arial.ttf'!" <<std::endl;
+            std::cerr << "Please copy 'arial.ttf' from C:\\Windows\\Fonts into your project directory." << std::endl;
+            window.close();
+        }
+        setupUI();
+    }
+
     fractalImage.create(width, height, sf::Color::Black);
     sequentialCalc = new SequentialCalculator();
     parallelCalc = new ParallelCalculator();
     calculator = sequentialCalc; // Start with sequential
-    if (!fractalTexture.create(width, height)) {
-        std::cerr << "Error: Could not create sf::Texture!" << std::endl;
-        window.close();
-    }
     
-    fractalSprite.setTexture(fractalTexture);
-
-    // font loader
-    if (!font.loadFromFile("arial.ttf")) {
-        std::cerr << "Error: Could not load font 'arial.ttf'!" <<std::endl;
-        std::cerr << "Please copy 'arial.ttf' from C:\\Windows\\Fonts into your project directory." << std::endl;
-        window.close();
-    }
-    setupUI();
 }
 
 SFMLWindowDrawer::~SFMLWindowDrawer() {
@@ -64,7 +86,7 @@ void SFMLWindowDrawer::setupUI() {
     textControls.setFillColor(sf::Color(180, 180, 180));
     unsigned int windowHeight = window.getSize().y;
     textControls.setPosition(10, windowHeight - 70);
-    textControls.setString("CONTROLS:\n[1-4]: Theme | [P]: Cycle Poly | [S]: Toggle Parallel\n[Arrows]: C-Value | [T/G]: Threads | [D]: Default Threads | [H]: Schedule | [Esc]: Exit");
+    textControls.setString("CONTROLS:\n[1-4]: Theme | [P]: Cycle Poly | [S]: Toggle Parallel | [M]: Toggle MPI\n[Arrows]: C-Value | [T/G]: Threads | [D]: Default Threads | [H]: Schedule | [Esc]: Exit");
 
     textParallel.setFont(font);
     textParallel.setCharacterSize(18);
@@ -73,10 +95,37 @@ void SFMLWindowDrawer::setupUI() {
 };
 
 void SFMLWindowDrawer::run() {
-    while (window.isOpen()) {
-        processEvents();
-        update();
-        render();
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    if (rank == 0) {
+        while (window.isOpen()) {
+            processEvents();
+            update();
+            render();
+        }
+        FractalState killSignal;
+        killSignal.command = 1;
+        MPI_Bcast(&killSignal, sizeof(FractalState), MPI_BYTE, 0, MPI_COMM_WORLD);
+    } else {
+        while (true) {
+            FractalState state;
+            MPI_Bcast(&state, sizeof(FractalState), MPI_BYTE, 0, MPI_COMM_WORLD);
+            if (state.command == 1) break;
+
+            current_c = std::complex<double>(state.c_real, state.c_imag);
+            view_x_min = state.view_x_min;
+            view_x_max = state.view_x_max;
+            view_y_min = state.view_y_min;
+            view_y_max = state.view_y_max;
+            current_max_iterations = state.max_iter;
+            current_poly_degree = state.poly_degrees;
+
+            int n_ranks;
+            MPI_Comm_size(MPI_COMM_WORLD, &n_ranks);
+            parallelCalc->calculate_distributed(rank, n_ranks, fractalImage, current_c,
+                                                current_max_iterations, current_poly_degree,
+                                                view_x_min, view_x_max, view_y_min, view_y_max);
+        }
     }
 }
 
@@ -107,6 +156,19 @@ void SFMLWindowDrawer::processEvents() {
                         calculator = parallelCalc;
                         std::cout << "Switched to Parallel Calculator" << std::endl;
                     } else {
+                        calculator = sequentialCalc;
+                        std::cout << "Switched to Sequential Calculator" << std::endl;
+                    }
+                    needsRecalculation = true;
+                    break;
+                
+                case sf::Keyboard::M:
+                    if (currentMode != CalcMode::DISTRIBUTED_MPI) {
+                        currentMode = CalcMode::DISTRIBUTED_MPI;
+                        calculator = parallelCalc;
+                        std::cout << "Switched to MPI Calculator" << std::endl;
+                    } else {
+                        currentMode = CalcMode::SEQUENTIAL;
                         calculator = sequentialCalc;
                         std::cout << "Switched to Sequential Calculator" << std::endl;
                     }
@@ -191,19 +253,26 @@ void SFMLWindowDrawer::updateUI() {
 
     // Update title to show current mode
     std::string mode = "Sequential";
-    if (typeid(*calculator) == typeid(ParallelCalculator)) {
-        mode = "Parallel";
+    if (currentMode == CalcMode::PARALLEL_OMP) {
+        mode = "Parallel (OpenMP)";
+    } else if (currentMode == CalcMode::DISTRIBUTED_MPI) {
+        mode = "Distributed (MPI)";
     }
     std::stringstream ss_title;
     ss_title << "Julia Set Explorer (" << mode << ")";
     textTitle.setString(ss_title.str());
 
     // Update parallel info text
-    if (typeid(*calculator) == typeid(ParallelCalculator)) {
+    if (currentMode != CalcMode::SEQUENTIAL){
         std::stringstream ss_parallel;
+        if (currentMode == CalcMode::DISTRIBUTED_MPI) {
+            int n_ranks;
+            MPI_Comm_size(MPI_COMM_WORLD, &n_ranks);
+            ss_parallel << "MPI Ranks: " << n_ranks << " | ";
+        }
         int numThreads = parallelCalc->getNumThreads();
 
-        ss_parallel << "Threads: " << (numThreads > 0 ? std::to_string(numThreads) : "Default") 
+        ss_parallel << "OMP Threads: " << (numThreads > 0 ? std::to_string(numThreads) : "Default") 
                     << " of " << maxThreads << " (Max)";
         ss_parallel << " | Schedule: ";
         ss_parallel << parallelCalc->getSchedule();
@@ -228,15 +297,47 @@ void SFMLWindowDrawer::render() {
 }
 
 void SFMLWindowDrawer::recalculateFractal() {
-    std::cout << "Recalculating fractal..." << std::endl;
-    calculator->calculate_polynomial(
-        fractalImage, 
-        current_c, 
-        current_max_iterations, 
-        current_poly_degree, 
-        view_x_min, view_x_max, 
-        view_y_min, view_y_max
-    );
-    fractalTexture.update(fractalImage);
-    std::cout << "Calculation complete!" << std::endl;
+    if (currentMode == CalcMode::DISTRIBUTED_MPI) {
+        int rank, n_ranks;
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        MPI_Comm_size(MPI_COMM_WORLD, &n_ranks);
+
+        if (rank == 0) {
+            std::cout << "Recalculating Distributed (MPI)..." << std::endl;
+
+            FractalState state;
+            state.c_real = current_c.real();
+            state.c_imag = current_c.imag();
+            state.view_x_min = view_x_min;
+            state.view_x_max = view_x_max;
+            state.view_y_min = view_y_min;
+            state.view_y_max = view_y_max;
+            state.max_iter = current_max_iterations;
+            state.poly_degrees = current_poly_degree;
+            state.command = 0;
+
+            MPI_Bcast(&state, sizeof(FractalState), MPI_BYTE, 0, MPI_COMM_WORLD);
+
+            parallelCalc->calculate_distributed(rank, n_ranks, fractalImage, current_c,
+                                              current_max_iterations, current_poly_degree,
+                                              view_x_min, view_x_max, view_y_min, view_y_max);
+
+            fractalTexture.update(fractalImage);
+            std::cout << "Distributed Calculation Complete." << std::endl;
+        }
+    } else {
+        std::string modeStr = (currentMode == CalcMode::SEQUENTIAL) ? "Sequential" : "Parallel (OpenMP)";
+        std::cout << "Recalculating " << modeStr << "..." << std::endl;
+
+        calculator->calculate_polynomial(
+            fractalImage, 
+            current_c, 
+            current_max_iterations, 
+            current_poly_degree, 
+            view_x_min, view_x_max, 
+            view_y_min, view_y_max
+        );
+        fractalTexture.update(fractalImage);
+        std::cout << "Local Calculation Complete." << std::endl;
+    }
 }

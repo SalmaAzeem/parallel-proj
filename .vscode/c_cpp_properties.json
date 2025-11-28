@@ -5,7 +5,8 @@
             "includePath": [
                 "C:/msys64/ucrt64/include",
                 "${workspaceFolder}/headers",
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/usr/lib/x86_64-linux-gnu/openmpi/include"
             ],
             "defines": [
                 "_DEBUG",

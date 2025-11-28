@@ -13,6 +13,11 @@ public:
     double calculate_polynomial (sf::Image& image, const std::complex<double>& c_constant, 
         int max_iterations, int poly_degree,
         double view_x_min, double view_x_max, double view_y_min, double view_y_max);
+        
+    void calculate_distributed(int rank, int n_ranks, sf::Image& image,
+        const std::complex<double>& c_constant,
+        int max_iterations, int poly_degree,
+        double view_x_min, double view_x_max, double view_y_min, double view_y_max);
     
     void setSchedule(const std::string& schedule);
     std::string getSchedule() const;
@@ -25,6 +30,8 @@ private:
     void calculate_pixel(unsigned int px, unsigned int py, sf::Image& image, const std::complex<double>& c_constant, 
         int max_iterations, int poly_degree,
         double view_x_min, double view_x_max, double view_y_min, double view_y_max);
+    void apply_blur(std::vector<sf::Uint8>& buffer, int width, int start_row, int end_row);  
+    
 };
 
 #endif
