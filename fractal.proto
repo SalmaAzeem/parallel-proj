@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package fractal;
+
+message JuliaRequest {
+    double c_real = 1;
+    double c_imag = 2;
+    int32 width = 3;
+    int32 height = 4;
+    int32 max_iterations = 5;
+    int32 poly_degree = 6;
+    double x_min = 7;
+    double x_max = 8;
+    double y_min = 9;
+    double y_max = 10;
+}
+
+message JuliaResponse {
+    bytes rgba_data = 1; // The raw pixel array
+}
+
+service FractalService {
+    rpc CalculateJulia (JuliaRequest) returns (JuliaResponse);
+}

@@ -7,29 +7,33 @@
 #include "ParallelCalculator.hpp"
 #include <string>
 #include <complex>
+#include "fractal.grpc.pb.h"
 
-enum class CalcMode {
+enum class CalcMode
+{
     SEQUENTIAL,
     PARALLEL_OMP,
     DISTRIBUTED_MPI
 };
 
-class SFMLWindowDrawer {
+class SFMLWindowDrawer
+{
 public:
-    SFMLWindowDrawer(unsigned int width, unsigned int height, const std::string& title);
+    SFMLWindowDrawer(unsigned int width, unsigned int height, const std::string &title, std::unique_ptr<fractal::FractalService::Stub> stub);
     ~SFMLWindowDrawer();
     void run();
 
 private:
+    std::unique_ptr<fractal::FractalService::Stub> stub_;
     void processEvents();
     void update();
     void render();
 
     void recalculateFractal();
-    
+
     void setupUI();
     void updateUI();
-    
+
     // SFML objects
     sf::RenderWindow window;
     sf::Event event;
@@ -37,9 +41,9 @@ private:
     sf::Texture fractalTexture;
     sf::Sprite fractalSprite;
 
-    SequentialCalculator* sequentialCalc;
-    ParallelCalculator* parallelCalc;
-    JuliaSetCalculator* calculator;
+    SequentialCalculator *sequentialCalc;
+    ParallelCalculator *parallelCalc;
+    JuliaSetCalculator *calculator;
 
     CalcMode currentMode;
 
