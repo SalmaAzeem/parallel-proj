@@ -7,7 +7,8 @@ int main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
 
-    std::string server_list = "localhost:50051,localhost:50052";
+    std::string server_list = "ipv4:127.0.0.1:50051,127.0.0.1:50052";
+
     grpc::ChannelArguments args;
     args.SetLoadBalancingPolicyName("round_robin");
 

@@ -2,7 +2,8 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update || (sleep 5 && apt-get update) && \
+    apt-get install -y --fix-missing --no-install-recommends \
     build-essential \
     libgrpc++-dev \
     protobuf-compiler-grpc \
