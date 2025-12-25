@@ -1,0 +1,9 @@
+services:
+  fractal-worker:
+    build:
+      context: .
+      network: host  
+    deploy:
+      replicas: 2
+    ports:
+      - "50051-50052:50051"
