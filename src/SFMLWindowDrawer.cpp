@@ -4,6 +4,8 @@
 #include <sstream>
 #include <omp.h>
 #include <thread>
+#include <chrono>
+#include <iomanip>
 #include <mpi.h>
 
 int maxThreads = std::thread::hardware_concurrency();
@@ -372,7 +374,10 @@ void SFMLWindowDrawer::render()
 
 void SFMLWindowDrawer::recalculateFractal()
 {
-    std::cout << "Requesting calculation from gRPC Server..." << std::endl;
+    auto start = std::chrono::high_resolution_clock::now();
+
+    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::cout << "[" << std::put_time(std::localtime(&now), "%H:%M:%S") << "] Sending request to replicas..." << std::endl;
 
     fractal::JuliaRequest request;
     request.set_c_real(current_c.real());
@@ -390,6 +395,7 @@ void SFMLWindowDrawer::recalculateFractal()
     grpc::ClientContext context;
 
     grpc::Status status = stub_->CalculateJulia(&context, request, &response);
+    auto end = std::chrono::high_resolution_clock::now();
 
     if (status.ok())
     {
@@ -397,10 +403,11 @@ void SFMLWindowDrawer::recalculateFractal()
         fractalImage.create(request.width(), request.height(),
                             reinterpret_cast<const sf::Uint8 *>(pixelData.data()));
         fractalTexture.update(fractalImage);
-        std::cout << "Remote Calculation Success!" << std::endl;
+        std::chrono::duration<double, std::milli> latency = end - start;
+        std::cout << "[SUCCESS] Received frame. Latency: " << latency.count() << " ms" << std::endl;
     }
     else
     {
-        std::cerr << "gRPC Call Failed: " << status.error_message() << std::endl;
+        std::cerr << "[ERROR] gRPC failed: " << status.error_message() << std::endl;
     }
 }
