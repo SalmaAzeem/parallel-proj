@@ -33,6 +33,8 @@ SFMLWindowDrawer::SFMLWindowDrawer(unsigned int width, unsigned int height, cons
       view_x_min(-2.0), view_x_max(2.0),
       view_y_min(-2.0), view_y_max(2.0),
       c_change_step(0.001),
+      drift_velocity(0.0, 0.0),
+      velocity_step(0.005),
       needsRecalculation(true)
 {
     int rank;
@@ -93,7 +95,7 @@ void SFMLWindowDrawer::setupUI()
     textControls.setFillColor(sf::Color(180, 180, 180));
     unsigned int windowHeight = window.getSize().y;
     textControls.setPosition(10, windowHeight - 70);
-    textControls.setString("CONTROLS:\n[1-4]: Theme | [P]: Cycle Poly | [S]: Toggle Parallel | [M]: Toggle MPI | [A]: Toggle Automation\n[Arrows]: C-Value | [T/G]: Threads | [D]: Default Threads | [H]: Schedule | [Esc]: Exit");
+    textControls.setString("CONTROLS:\n[1-4]: Theme | [P]: Cycle Poly | [S]: Toggle Parallel | [M]: Toggle MPI | [A]: Toggle Automation\n[Arrows]: C-Velocity | [Space]: Reset Vel | [T/G]: Threads | [H]: Schedule | [Esc]: Exit");
 
     textParallel.setFont(font);
     textParallel.setCharacterSize(18);
@@ -270,22 +272,22 @@ void SFMLWindowDrawer::processEvents()
                     needsRecalculation = true;
                 }
                 break;
-            // C-value controls
+            // C-velocity controls
             case sf::Keyboard::Up:
-                current_c.imag(current_c.imag() + c_change_step);
-                c_changed = true;
+                drift_velocity.imag(drift_velocity.imag() + velocity_step);
                 break;
             case sf::Keyboard::Down:
-                current_c.imag(current_c.imag() - c_change_step);
-                c_changed = true;
+                drift_velocity.imag(drift_velocity.imag() - velocity_step);
                 break;
             case sf::Keyboard::Left:
-                current_c.real(current_c.real() - c_change_step);
-                c_changed = true;
+                drift_velocity.real(drift_velocity.real() - velocity_step);
                 break;
             case sf::Keyboard::Right:
-                current_c.real(current_c.real() + c_change_step);
-                c_changed = true;
+                drift_velocity.real(drift_velocity.real() + velocity_step);
+                break;
+            case sf::Keyboard::Space:
+                drift_velocity = std::complex<double>(0, 0);
+                needsRecalculation = true;
                 break;
 
             case sf::Keyboard::Escape:
@@ -302,6 +304,14 @@ void SFMLWindowDrawer::processEvents()
 
 void SFMLWindowDrawer::update()
 {
+    float deltaTime = movementClock.restart().asSeconds();
+    
+    // Apply drift velocity
+    if (std::abs(drift_velocity.real()) > 1e-9 || std::abs(drift_velocity.imag()) > 1e-9) {
+        current_c += drift_velocity * static_cast<double>(deltaTime);
+        needsRecalculation = true;
+    }
+
     if (isAutomated) 
     {
         static auto last_auto_update = std::chrono::steady_clock::now();
@@ -317,8 +327,12 @@ void SFMLWindowDrawer::update()
 
     if (needsRecalculation)
     {
-        recalculateFractal();
-        needsRecalculation = false;
+        static sf::Clock renderThrottle;
+        if (renderThrottle.getElapsedTime().asMilliseconds() > 33) { // ~30 FPS cap
+            recalculateFractal();
+            renderThrottle.restart();
+            needsRecalculation = false;
+        }
     }
 
     updateUI();
@@ -329,7 +343,8 @@ void SFMLWindowDrawer::updateUI()
     // This uses string streams to build the text
     std::stringstream ss_params;
     ss_params << "C = " << current_c.real() << (current_c.imag() >= 0 ? " + " : " - ")
-              << std::abs(current_c.imag()) << "i  |  Poly: " << current_poly_degree;
+              << std::abs(current_c.imag()) << "i  |  Poly: " << current_poly_degree
+              << " | Vel: (" << drift_velocity.real() << ", " << drift_velocity.imag() << ")";
     textParams.setString(ss_params.str());
 
     std::stringstream ss_theme;
