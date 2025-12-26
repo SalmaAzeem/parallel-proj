@@ -19,6 +19,13 @@ message JuliaResponse {
     bytes rgba_data = 1; // The raw pixel array
 }
 
+message ShutdownRequest {}
+message ShutdownResponse {
+  string message = 1;
+}
+
 service FractalService {
     rpc CalculateJulia (JuliaRequest) returns (JuliaResponse);
+    rpc Shutdown (ShutdownRequest) returns (ShutdownResponse);
 }
+

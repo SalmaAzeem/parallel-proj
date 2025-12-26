@@ -26,8 +26,9 @@ RUN mpicxx -O3 \
     fractal.grpc.pb.cc \
     -I. -I./headers \
     -lsfml-graphics -lsfml-window -lsfml-system \
-    -lgrpc++ -lprotobuf -fopenmp \
+    -lgrpc++ -lgrpc++_reflection -lprotobuf -lpthread -fopenmp \
     -o fractal_server
+
 
 EXPOSE 50051
 
