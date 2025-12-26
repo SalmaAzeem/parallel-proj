@@ -56,6 +56,7 @@ private:
 
     // State management
     bool needsRecalculation;
+    bool isAutomated = false;
 
     sf::Font font;
     sf::Text textTitle;

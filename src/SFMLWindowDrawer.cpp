@@ -7,6 +7,8 @@
 #include <chrono>
 #include <iomanip>
 #include <mpi.h>
+#include <fstream>
+#include <numeric>
 
 int maxThreads = std::thread::hardware_concurrency();
 
@@ -91,7 +93,7 @@ void SFMLWindowDrawer::setupUI()
     textControls.setFillColor(sf::Color(180, 180, 180));
     unsigned int windowHeight = window.getSize().y;
     textControls.setPosition(10, windowHeight - 70);
-    textControls.setString("CONTROLS:\n[1-4]: Theme | [P]: Cycle Poly | [S]: Toggle Parallel | [M]: Toggle MPI\n[Arrows]: C-Value | [T/G]: Threads | [D]: Default Threads | [H]: Schedule | [Esc]: Exit");
+    textControls.setString("CONTROLS:\n[1-4]: Theme | [P]: Cycle Poly | [S]: Toggle Parallel | [M]: Toggle MPI | [A]: Toggle Automation\n[Arrows]: C-Value | [T/G]: Threads | [D]: Default Threads | [H]: Schedule | [Esc]: Exit");
 
     textParallel.setFont(font);
     textParallel.setCharacterSize(18);
@@ -199,6 +201,10 @@ void SFMLWindowDrawer::processEvents()
                 needsRecalculation = true;
                 break;
 
+            case sf::Keyboard::A:
+                isAutomated = !isAutomated;
+                std::cout << "[INFO] Automation: " << (isAutomated ? "Enabled" : "Disabled") << std::endl;
+                break;
             case sf::Keyboard::M:
                 if (currentMode != CalcMode::DISTRIBUTED_MPI)
                 {
@@ -296,14 +302,25 @@ void SFMLWindowDrawer::processEvents()
 
 void SFMLWindowDrawer::update()
 {
-    // We only recalculate if a setting changed
+    if (isAutomated) 
+    {
+        static auto last_auto_update = std::chrono::steady_clock::now();
+        auto now = std::chrono::steady_clock::now();
+        
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_auto_update).count() > 100) {
+            double step = 0.002; 
+            current_c = std::complex<double>(current_c.real() + step, current_c.imag() + (step / 2.0));
+            needsRecalculation = true;
+            last_auto_update = now;
+        }
+    }
+
     if (needsRecalculation)
     {
         recalculateFractal();
         needsRecalculation = false;
     }
 
-    // We update the UI text *every* frame
     updateUI();
 }
 
@@ -374,7 +391,16 @@ void SFMLWindowDrawer::render()
 
 void SFMLWindowDrawer::recalculateFractal()
 {
-    auto start = std::chrono::high_resolution_clock::now();
+    static std::ofstream metrics_file("data/metrics_log.csv");
+    static auto session_start = std::chrono::steady_clock::now();
+
+    static bool header_written = false;
+    if (!header_written) {
+        metrics_file << "Timestamp(s),Latency(ms),Success\n";
+        header_written = true;
+    }
+
+    auto start = std::chrono::steady_clock::now();
 
     auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::cout << "[" << std::put_time(std::localtime(&now), "%H:%M:%S") << "] Sending request to replicas..." << std::endl;
@@ -395,7 +421,18 @@ void SFMLWindowDrawer::recalculateFractal()
     grpc::ClientContext context;
 
     grpc::Status status = stub_->CalculateJulia(&context, request, &response);
-    auto end = std::chrono::high_resolution_clock::now();
+    auto end = std::chrono::steady_clock::now();
+
+    std::chrono::duration<double, std::milli> latency = end - start;
+    double timestamp = std::chrono::duration<double>(end - session_start).count();
+    bool is_success = status.ok();
+
+    if (metrics_file.is_open()) {
+        metrics_file << timestamp << "," 
+                     << latency.count() << "," 
+                     << (is_success ? 1 : 0) << "\n";
+        metrics_file.flush();
+    }
 
     if (status.ok())
     {
