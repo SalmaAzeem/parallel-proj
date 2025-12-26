@@ -95,7 +95,7 @@ void SFMLWindowDrawer::setupUI()
     textControls.setFillColor(sf::Color(180, 180, 180));
     unsigned int windowHeight = window.getSize().y;
     textControls.setPosition(10, windowHeight - 70);
-    textControls.setString("CONTROLS:\n[1-4]: Theme | [P]: Cycle Poly | [S]: Toggle Parallel | [M]: Toggle MPI | [A]: Toggle Automation\n[Arrows]: C-Velocity | [Space]: Reset Vel | [T/G]: Threads | [H]: Schedule | [Esc]: Exit");
+    textControls.setString("CONTROLS:\n | [A]: Toggle Automation | [P]: Cycle Poly | [S]: Toggle Parallel | [M]: Toggle MPI\n[Arrows]: C-Value | [T/G]: Threads | [D]: Default Threads | [H]: Schedule | [Esc]: Exit");
 
     textParallel.setFont(font);
     textParallel.setCharacterSize(18);
@@ -304,25 +304,24 @@ void SFMLWindowDrawer::processEvents()
 
 void SFMLWindowDrawer::update()
 {
-    float deltaTime = movementClock.restart().asSeconds();
+    static auto last_auto_update = std::chrono::steady_clock::now();
+    auto now = std::chrono::steady_clock::now();
     
-    // Apply drift velocity
-    if (std::abs(drift_velocity.real()) > 1e-9 || std::abs(drift_velocity.imag()) > 1e-9) {
-        current_c += drift_velocity * static_cast<double>(deltaTime);
-        needsRecalculation = true;
-    }
-
-    if (isAutomated) 
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_auto_update).count() > 50) 
     {
-        static auto last_auto_update = std::chrono::steady_clock::now();
-        auto now = std::chrono::steady_clock::now();
-        
-        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_auto_update).count() > 100) {
-            double step = 0.002; 
-            current_c = std::complex<double>(current_c.real() + step, current_c.imag() + (step / 2.0));
-            needsRecalculation = true;
-            last_auto_update = now;
-        }
+        double step_real = 0.0015; 
+        double step_imag = 0.0008;
+
+        current_c = std::complex<double>(
+            current_c.real() + step_real, 
+            current_c.imag() + step_imag
+        );
+
+        if (std::abs(current_c.real()) > 2.0) step_real *= -1;
+        if (std::abs(current_c.imag()) > 2.0) step_imag *= -1;
+
+        needsRecalculation = true;
+        last_auto_update = now;
     }
 
     if (needsRecalculation)
