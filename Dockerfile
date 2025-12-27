@@ -2,18 +2,15 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://archive.ubuntu.com/ubuntu/|g' /etc/apt/sources.list && \
-    echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries
-
-RUN apt-get update && \
+RUN apt-get update || (sleep 5 && apt-get update) && \
     apt-get install -y --fix-missing --no-install-recommends \
-    ca-certificates \
     build-essential \
     libgrpc++-dev \
     protobuf-compiler-grpc \
     libprotobuf-dev \
     libsfml-dev \
-    libopenmpi-dev && \
+    libopenmpi-dev \
+    ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 COPY . /app
