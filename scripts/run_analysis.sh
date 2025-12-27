@@ -20,7 +20,7 @@ CLIENT_PID=$!
 
 sleep 5
 
-sleep 55
+sleep 30
 
 echo "Step 3: Simulating Network Disruption (30s)..."
 
@@ -29,7 +29,7 @@ if command -v xdotool &> /dev/null; then
 else
     echo "y" > /proc/$CLIENT_PID/fd/0 2>/dev/null
 fi
-sleep 30
+sleep 20
 
 echo "Turning off Network Disruption..."
 if command -v xdotool &> /dev/null; then
