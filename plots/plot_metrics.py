@@ -9,7 +9,7 @@ if not os.path.exists("plots"):
 # 1. Load the data
 csv_path = "data/metrics_log.csv"
 if not os.path.exists(csv_path):
-    print(f"Error: {csv_path} not found.")
+    print(f"Error: {csv_path} not found.Run the automation script first.")
     exit()
 
 # C++ Columns: Timestamp, Status, Latency_ms, Condition

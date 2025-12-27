@@ -56,6 +56,12 @@ private:
 
     // State management
     bool needsRecalculation;
+    bool isAutomated = false;
+
+    // Velocity control
+    std::complex<double> drift_velocity;
+    double velocity_step;
+    sf::Clock movementClock;
     bool simulateTimeout;
 
     sf::Font font;
