@@ -12,60 +12,74 @@ if not os.path.exists(csv_path):
     print(f"Error: {csv_path} not found.")
     exit()
 
-# C++ Columns: Timestamp, Status, Latency_ms, Condition
-df = pd.read_csv(csv_path, names=['Timestamp', 'Status', 'Latency_ms', 'Condition'])
+# Load CSV and clean columns
+df = pd.read_csv(csv_path)
+df.columns = df.columns.str.strip()
 
-# Convert Timestamp and calculate relative time
+# Convert Timestamp and calculate relative time in seconds
 df['Timestamp'] = pd.to_datetime(df['Timestamp'])
 start_time = df['Timestamp'].min()
 df['TimeDelta'] = (df['Timestamp'] - start_time).dt.total_seconds()
 
-# Set professional style
+# Identify critical event timestamps
+# Network Disruption: When the condition first becomes 'DISRUPTED'
+disrupt_start = df[df['Condition'] == 'DISRUPTED']['TimeDelta'].min()
+
+# Service Stop: When the status first becomes 'FAILURE'
+stop_start = df[df['Status'] == 'FAILURE']['TimeDelta'].min()
+
+# Recovery Point: The first 'SUCCESS' after the service was stopped
+recovery_point = None
+if pd.notnull(stop_start):
+    recovery_point = df[(df['TimeDelta'] > stop_start) & (df['Status'] == 'SUCCESS')]['TimeDelta'].min()
+
 plt.style.use("seaborn-v0_8-muted")
 
-# --- 2. Create Latency Plot ---
-plt.figure(figsize=(12, 6))
-
-# Plot the actual data points
-plt.scatter(df['TimeDelta'], df['Latency_ms'], 
-            c=df['Status'].map({'SUCCESS': 'blue', 'FAILURE': 'red'}), 
-            alpha=0.5, s=15, label='Requests')
-
-# --- 3. ADD THE THREE CRITICAL LINES ---
-
-# Line 1: Network Disruption (Likely when Condition changes to DISRUPTED)
-disrupt_start = df[df['Condition'] == 'DISRUPTED']['TimeDelta'].min()
-if pd.notnull(disrupt_start):
-    plt.axvline(x=disrupt_start, color='orange', linestyle='--', linewidth=2)
-    plt.text(disrupt_start, plt.ylim()[1]*0.9, ' Network Disruption', color='orange', fontweight='bold')
-
-# Line 2: Failure Injected (When status first turns to FAILURE)
-failure_start = df[df['Status'] == 'FAILURE']['TimeDelta'].min()
-if pd.notnull(failure_start):
-    plt.axvline(x=failure_start, color='red', linestyle='--', linewidth=2)
-    plt.text(failure_start, plt.ylim()[1]*0.7, ' Failure Injected', color='red', fontweight='bold')
-
-# Line 3: Recovery (First success AFTER a failure)
-if pd.notnull(failure_start):
-    recovery_point = df[(df['TimeDelta'] > failure_start) & (df['Status'] == 'SUCCESS')]['TimeDelta'].min()
+def apply_annotations(ax):
+    """Adds labeled vertical lines for each failure stage."""
+    ylim = ax.get_ylim()[1]
+    
+    if pd.notnull(disrupt_start):
+        ax.axvline(x=disrupt_start, color='orange', linestyle='--', linewidth=1.5)
+        ax.text(disrupt_start, ylim * 0.9, ' Network Disruption', color='orange', fontweight='bold')
+    
+    if pd.notnull(stop_start):
+        ax.axvline(x=stop_start, color='red', linestyle='--', linewidth=1.5)
+        ax.text(stop_start, ylim * 0.7, ' Worker Stopped', color='red', fontweight='bold')
+        
     if pd.notnull(recovery_point):
-        plt.axvline(x=recovery_point, color='green', linestyle='-', linewidth=2)
-        plt.text(recovery_point, plt.ylim()[1]*0.5, ' Recovery Point', color='green', fontweight='bold')
+        ax.axvline(x=recovery_point, color='green', linestyle='-', linewidth=2)
+        ax.text(recovery_point, ylim * 0.5, ' Recovery Point', color='green', fontweight='bold')
 
-plt.title("Fractal Service Resilience Analysis")
+# --- Graph 1: Latency vs. Time ---
+plt.figure(figsize=(12, 6))
+plt.scatter(df['TimeDelta'], df['Latency_ms'], 
+            c=df['Status'].map({'SUCCESS': 'royalblue', 'FAILURE': 'red'}), 
+            alpha=0.6, s=20, label='Requests (Blue=Success, Red=Fail)')
+
+apply_annotations(plt.gca())
+plt.title("Latency vs. Time (Resilience Analysis)")
 plt.xlabel("Time (seconds)")
 plt.ylabel("Latency (ms)")
-plt.grid(True, which='both', linestyle='--', alpha=0.5)
-plt.tight_layout()
-plt.savefig("plots/latency_resilience.png", dpi=300)
-print("Generated: plots/latency_resilience.png with 3 event lines.")
+plt.grid(True, linestyle=':', alpha=0.6)
+plt.legend(loc='upper right')
+plt.savefig("latency_vs_time.png", dpi=300)
+print("Generated: plots/latency_vs_time.png")
 
-# --- 4. Summary Statistics ---
-print("\n--- Mandatory Resilience Metrics ---")
-if pd.notnull(disrupt_start) and pd.notnull(failure_start):
-    disruption_zone = df[(df['TimeDelta'] >= disrupt_start) & (df['TimeDelta'] < failure_start)]
-    print(f"Avg Latency during Network Disruption: {disruption_zone['Latency_ms'].mean():.2f} ms")
+# --- Graph 2: Throughput vs. Time ---
+# Group successful requests into 1-second bins
+df['Second'] = df['TimeDelta'].astype(int)
+throughput = df[df['Status'] == 'SUCCESS'].groupby('Second').size()
 
-if pd.notnull(failure_start) and pd.notnull(recovery_point):
-    recovery_time = recovery_point - failure_start
-    print(f"System Recovery Time (MTTR): {recovery_time:.2f} seconds")
+plt.figure(figsize=(12, 6))
+plt.plot(throughput.index, throughput.values, color='teal', linewidth=2, label='Successful Req/sec')
+plt.fill_between(throughput.index, throughput.values, color='teal', alpha=0.1)
+
+apply_annotations(plt.gca())
+plt.title("Throughput vs. Time")
+plt.xlabel("Time (seconds)")
+plt.ylabel("Throughput (Req/sec)")
+plt.grid(True, linestyle=':', alpha=0.6)
+plt.legend(loc='upper right')
+plt.savefig("throughput_vs_time.png", dpi=300)
+print("Generated: plots/throughput_vs_time.png")

@@ -129,8 +129,22 @@ mpicxx -O3 \
 
 Spark will now process 2 frames per second for exactly 30 seconds, creating a smooth stream of batches.
 
----
 
-### You're now set up to compile and run C++ projects using SFML in VS Code on Windows
 
 To run anything you'll need to simply hold `CTRL + SHIFT + B` and then run the .exe file that will pop up in your directory. Make sure the tasks.json is updated regularly as you add new files to the project, as it is not done automatically unless you use the C++ runner extension. However, using it could lead to forced modifications if not configured properly, which will break the build process.
+
+### Simulating Failure
+
+This section demonstrates how to intentionally introduce failures to test system resilience and fault tolerance.
+
+#### 1. Worker Crash (gRPC Shutdown)
+
+Simulates a hard failure where a gRPC worker is terminated during execution.
+
+**Command (run while system is active):**
+```bash
+docker compose run --rm grpcurl -plaintext fractal-worker:50051 fractal.FractalService/Shutdown
+```
+#### 2. Timeout Simulation
+you can toggle y key in Gui to activate timeout simulation
+### You're now set up to compile and run C++ projects using SFML in VS Code on Windows

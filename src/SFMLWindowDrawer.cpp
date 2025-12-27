@@ -31,9 +31,11 @@ SFMLWindowDrawer::SFMLWindowDrawer(unsigned int width, unsigned int height, cons
       current_max_iterations(100),
       view_x_min(-2.0), view_x_max(2.0),
       view_y_min(-2.0), view_y_max(2.0),
-            c_change_step(0.001),
-        needsRecalculation(true),
-        simulateTimeout(false)
+      c_change_step(0.001),
+      drift_velocity(0.0, 0.0),
+      velocity_step(0.005),
+      needsRecalculation(true),
+      simulateTimeout(false)
 {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -93,7 +95,7 @@ void SFMLWindowDrawer::setupUI()
     textControls.setFillColor(sf::Color(180, 180, 180));
     unsigned int windowHeight = window.getSize().y;
     textControls.setPosition(10, windowHeight - 70);
-    textControls.setString("CONTROLS:\n[1-4]: Theme | [P]: Cycle Poly | [S]: Toggle Parallel | [M]: Toggle MPI\n[Arrows]: C-Value | [T/G]: Threads | [D]: Default Threads | [H]: Schedule | [Y]: Toggle SimTimeout | [Esc]: Exit");
+    textControls.setString("CONTROLS:\n[1-4]: Theme | [A]: Toggle Automation | [P]: Cycle Poly | [S]: Toggle Parallel | [M]: Toggle MPI\n[Arrows]: C-Value | [T/G]: Threads | [D]: Default Threads | [H]: Schedule | [Y]: Toggle SimTimeout | [Esc]: Exit");
 
 
     textParallel.setFont(font);
@@ -201,7 +203,10 @@ void SFMLWindowDrawer::processEvents()
                 }
                 needsRecalculation = true;
                 break;
-
+            case sf::Keyboard::A:
+                isAutomated = !isAutomated;
+                std::cout << "[INFO] Automation: " << (isAutomated ? "Enabled" : "Disabled") << std::endl;
+                break;
             case sf::Keyboard::M:
                 if (currentMode != CalcMode::DISTRIBUTED_MPI)
                 {
@@ -267,22 +272,22 @@ void SFMLWindowDrawer::processEvents()
                     needsRecalculation = true;
                 }
                 break;
-            // C-value controls
+            // C-velocity controls
             case sf::Keyboard::Up:
-                current_c.imag(current_c.imag() + c_change_step);
-                c_changed = true;
+                drift_velocity.imag(drift_velocity.imag() + velocity_step);
                 break;
             case sf::Keyboard::Down:
-                current_c.imag(current_c.imag() - c_change_step);
-                c_changed = true;
+                drift_velocity.imag(drift_velocity.imag() - velocity_step);
                 break;
             case sf::Keyboard::Left:
-                current_c.real(current_c.real() - c_change_step);
-                c_changed = true;
+                drift_velocity.real(drift_velocity.real() - velocity_step);
                 break;
             case sf::Keyboard::Right:
-                current_c.real(current_c.real() + c_change_step);
-                c_changed = true;
+                drift_velocity.real(drift_velocity.real() + velocity_step);
+                break;
+            case sf::Keyboard::Space:
+                drift_velocity = std::complex<double>(0, 0);
+                needsRecalculation = true;
                 break;
 
             case sf::Keyboard::Escape:
@@ -304,13 +309,35 @@ void SFMLWindowDrawer::processEvents()
 
 void SFMLWindowDrawer::update()
 {
-    // We only recalculate if a setting changed
-    if (needsRecalculation)
+    static auto last_auto_update = std::chrono::steady_clock::now();
+    auto now = std::chrono::steady_clock::now();
+
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_auto_update).count() > 50) 
     {
-        recalculateFractal();
-        needsRecalculation = false;
+        double step_real = 0.0015; 
+        double step_imag = 0.0008;
+
+        current_c = std::complex<double>(
+            current_c.real() + step_real, 
+            current_c.imag() + step_imag
+        );
+
+        if (std::abs(current_c.real()) > 2.0) step_real *= -1;
+        if (std::abs(current_c.imag()) > 2.0) step_imag *= -1;
+
+        needsRecalculation = true;
+        last_auto_update = now;
     }
 
+    if (needsRecalculation)
+    {
+        static sf::Clock renderThrottle;
+        if (renderThrottle.getElapsedTime().asMilliseconds() > 33) { // ~30 FPS cap
+            recalculateFractal();
+            renderThrottle.restart();
+            needsRecalculation = false;
+        }
+    }
     // We update the UI text *every* frame
     updateUI();
 }
@@ -320,7 +347,8 @@ void SFMLWindowDrawer::updateUI()
     // This uses string streams to build the text
     std::stringstream ss_params;
     ss_params << "C = " << current_c.real() << (current_c.imag() >= 0 ? " + " : " - ")
-              << std::abs(current_c.imag()) << "i  |  Poly: " << current_poly_degree;
+              << std::abs(current_c.imag()) << "i  |  Poly: " << current_poly_degree
+              << " | Vel: (" << drift_velocity.real() << ", " << drift_velocity.imag() << ")";
     ss_params << "  |  SimTimeout: " << (simulateTimeout ? "ON" : "OFF");
     textParams.setString(ss_params.str());
 
@@ -383,6 +411,7 @@ void SFMLWindowDrawer::render()
 
 void SFMLWindowDrawer::recalculateFractal()
 {
+    
     auto start = std::chrono::high_resolution_clock::now();
 
     fractal::JuliaRequest request;
