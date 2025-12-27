@@ -7,7 +7,8 @@ services:
       replicas: 2
     ports:
       - "50051-50052:50051"
-    restart: always
+    restart: any
+      
   grpcurl:
     image: fullstorydev/grpcurl
     profiles: ["tools"]

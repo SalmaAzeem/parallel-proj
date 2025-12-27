@@ -6,6 +6,7 @@
 #include "headers/ParallelCalculator.hpp"
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 #include<thread>
+#include <chrono>
 
 using fractal::JuliaRequest;
 using fractal::JuliaResponse;
@@ -19,9 +20,20 @@ std::unique_ptr<grpc::Server> g_server;
 class FractalServiceImpl final : public fractal::FractalService::Service
 {
     ParallelCalculator calculator;
+    bool timeout_state = false;
 
     Status CalculateJulia(ServerContext *context, const JuliaRequest *request, JuliaResponse *response) override
     {
+        auto md = context->client_metadata();
+        auto it_shutdown = md.find("x-shutdown-worker");
+        auto it = md.find("x-simulate-unavailability");
+        if (it != md.end() && timeout_state)
+        {
+            std::cerr << "[SERVER] Simulating UNAVAILABLE" << std::endl;
+            timeout_state = false;
+            return Status(grpc::StatusCode::UNAVAILABLE, "simulated-unavailable");
+        }
+        timeout_state = true;
         sf::Image image;
         image.create(request->width(), request->height());
 
@@ -40,7 +52,7 @@ class FractalServiceImpl final : public fractal::FractalService::Service
         return Status::OK;
     }
 
-    Status Shutdown(ServerContext *,
+       Status Shutdown(ServerContext *,
                     const fractal::ShutdownRequest *,
                     fractal::ShutdownResponse *response) override
     {

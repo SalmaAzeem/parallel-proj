@@ -10,8 +10,10 @@ RUN apt-get update || (sleep 5 && apt-get update) && \
     libprotobuf-dev \
     libsfml-dev \
     libopenmpi-dev \
+    iproute2\
     ca-certificates && \
     rm -rf /var/lib/apt/lists/*
+
 
 COPY . /app
 WORKDIR /app

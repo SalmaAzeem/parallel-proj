@@ -30,8 +30,9 @@ SFMLWindowDrawer::SFMLWindowDrawer(unsigned int width, unsigned int height, cons
       current_max_iterations(100),
       view_x_min(-2.0), view_x_max(2.0),
       view_y_min(-2.0), view_y_max(2.0),
-      c_change_step(0.001),
-      needsRecalculation(true)
+            c_change_step(0.001),
+        needsRecalculation(true),
+        simulateTimeout(false)
 {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -91,7 +92,8 @@ void SFMLWindowDrawer::setupUI()
     textControls.setFillColor(sf::Color(180, 180, 180));
     unsigned int windowHeight = window.getSize().y;
     textControls.setPosition(10, windowHeight - 70);
-    textControls.setString("CONTROLS:\n[1-4]: Theme | [P]: Cycle Poly | [S]: Toggle Parallel | [M]: Toggle MPI\n[Arrows]: C-Value | [T/G]: Threads | [D]: Default Threads | [H]: Schedule | [Esc]: Exit");
+    textControls.setString("CONTROLS:\n[1-4]: Theme | [P]: Cycle Poly | [S]: Toggle Parallel | [M]: Toggle MPI\n[Arrows]: C-Value | [T/G]: Threads | [D]: Default Threads | [H]: Schedule | [Y]: Toggle SimTimeout | [Esc]: Exit");
+
 
     textParallel.setFont(font);
     textParallel.setCharacterSize(18);
@@ -285,6 +287,16 @@ void SFMLWindowDrawer::processEvents()
             case sf::Keyboard::Escape:
                 window.close();
                 break;
+            case sf::Keyboard::Y:
+                simulateTimeout = !simulateTimeout;
+                std::cout << "Simulate timeout: " << (simulateTimeout ? "ON" : "OFF") << std::endl;
+                needsRecalculation = true;
+                break;
+            case sf::Keyboard::K:
+                simulateShutdown = !simulateShutdown;
+                std::cout << "Simulate shutdown: " << (simulateShutdown ? "ON" : "OFF") << std::endl;
+                needsRecalculation = true;
+                break;
             default:
                 break;
             }
@@ -313,6 +325,8 @@ void SFMLWindowDrawer::updateUI()
     std::stringstream ss_params;
     ss_params << "C = " << current_c.real() << (current_c.imag() >= 0 ? " + " : " - ")
               << std::abs(current_c.imag()) << "i  |  Poly: " << current_poly_degree;
+    ss_params << "  |  SimTimeout: " << (simulateTimeout ? "ON" : "OFF");
+    ss_params << "  |  SimShutdown: " << (simulateShutdown ? "ON" : "OFF");
     textParams.setString(ss_params.str());
 
     std::stringstream ss_theme;
@@ -393,6 +407,14 @@ void SFMLWindowDrawer::recalculateFractal()
 
     fractal::JuliaResponse response;
     grpc::ClientContext context;
+    context.set_deadline(std::chrono::system_clock::now() + std::chrono::seconds(5));
+
+    if (simulateTimeout)
+    {
+        context.AddMetadata("x-simulate-unavailability", "1");
+
+        std::cout << "[INFO] Simulating timeout: deadline set to 100ms and metadata added\n";
+    }
 
     grpc::Status status = stub_->CalculateJulia(&context, request, &response);
     auto end = std::chrono::high_resolution_clock::now();

@@ -56,6 +56,7 @@ private:
 
     // State management
     bool needsRecalculation;
+    bool simulateTimeout;
 
     sf::Font font;
     sf::Text textTitle;
