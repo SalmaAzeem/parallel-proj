@@ -23,6 +23,7 @@
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/arena.h>
 #include <google/protobuf/arenastring.h>
+#include <google/protobuf/generated_message_bases.h>
 #include <google/protobuf/generated_message_util.h>
 #include <google/protobuf/metadata_lite.h>
 #include <google/protobuf/generated_message_reflection.h>
@@ -51,10 +52,18 @@ extern JuliaRequestDefaultTypeInternal _JuliaRequest_default_instance_;
 class JuliaResponse;
 struct JuliaResponseDefaultTypeInternal;
 extern JuliaResponseDefaultTypeInternal _JuliaResponse_default_instance_;
+class ShutdownRequest;
+struct ShutdownRequestDefaultTypeInternal;
+extern ShutdownRequestDefaultTypeInternal _ShutdownRequest_default_instance_;
+class ShutdownResponse;
+struct ShutdownResponseDefaultTypeInternal;
+extern ShutdownResponseDefaultTypeInternal _ShutdownResponse_default_instance_;
 }  // namespace fractal
 PROTOBUF_NAMESPACE_OPEN
 template<> ::fractal::JuliaRequest* Arena::CreateMaybeMessage<::fractal::JuliaRequest>(Arena*);
 template<> ::fractal::JuliaResponse* Arena::CreateMaybeMessage<::fractal::JuliaResponse>(Arena*);
+template<> ::fractal::ShutdownRequest* Arena::CreateMaybeMessage<::fractal::ShutdownRequest>(Arena*);
+template<> ::fractal::ShutdownResponse* Arena::CreateMaybeMessage<::fractal::ShutdownResponse>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace fractal {
 
@@ -429,6 +438,8 @@ class JuliaResponse final :
 
   enum : int {
     kRgbaDataFieldNumber = 1,
+    kServerIdFieldNumber = 3,
+    kCalculationTimeMsFieldNumber = 2,
   };
   // bytes rgba_data = 1;
   void clear_rgba_data();
@@ -444,6 +455,29 @@ class JuliaResponse final :
   std::string* _internal_mutable_rgba_data();
   public:
 
+  // string server_id = 3;
+  void clear_server_id();
+  const std::string& server_id() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_server_id(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_server_id();
+  PROTOBUF_NODISCARD std::string* release_server_id();
+  void set_allocated_server_id(std::string* server_id);
+  private:
+  const std::string& _internal_server_id() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_server_id(const std::string& value);
+  std::string* _internal_mutable_server_id();
+  public:
+
+  // double calculation_time_ms = 2;
+  void clear_calculation_time_ms();
+  double calculation_time_ms() const;
+  void set_calculation_time_ms(double value);
+  private:
+  double _internal_calculation_time_ms() const;
+  void _internal_set_calculation_time_ms(double value);
+  public:
+
   // @@protoc_insertion_point(class_scope:fractal.JuliaResponse)
  private:
   class _Internal;
@@ -453,6 +487,279 @@ class JuliaResponse final :
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr rgba_data_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr server_id_;
+    double calculation_time_ms_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_fractal_2eproto;
+};
+// -------------------------------------------------------------------
+
+class ShutdownRequest final :
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:fractal.ShutdownRequest) */ {
+ public:
+  inline ShutdownRequest() : ShutdownRequest(nullptr) {}
+  explicit PROTOBUF_CONSTEXPR ShutdownRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ShutdownRequest(const ShutdownRequest& from);
+  ShutdownRequest(ShutdownRequest&& from) noexcept
+    : ShutdownRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline ShutdownRequest& operator=(const ShutdownRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ShutdownRequest& operator=(ShutdownRequest&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ShutdownRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ShutdownRequest* internal_default_instance() {
+    return reinterpret_cast<const ShutdownRequest*>(
+               &_ShutdownRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(ShutdownRequest& a, ShutdownRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ShutdownRequest* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ShutdownRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ShutdownRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ShutdownRequest>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const ShutdownRequest& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const ShutdownRequest& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
+  public:
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "fractal.ShutdownRequest";
+  }
+  protected:
+  explicit ShutdownRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:fractal.ShutdownRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+  };
+  friend struct ::TableStruct_fractal_2eproto;
+};
+// -------------------------------------------------------------------
+
+class ShutdownResponse final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:fractal.ShutdownResponse) */ {
+ public:
+  inline ShutdownResponse() : ShutdownResponse(nullptr) {}
+  ~ShutdownResponse() override;
+  explicit PROTOBUF_CONSTEXPR ShutdownResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ShutdownResponse(const ShutdownResponse& from);
+  ShutdownResponse(ShutdownResponse&& from) noexcept
+    : ShutdownResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline ShutdownResponse& operator=(const ShutdownResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ShutdownResponse& operator=(ShutdownResponse&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ShutdownResponse& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ShutdownResponse* internal_default_instance() {
+    return reinterpret_cast<const ShutdownResponse*>(
+               &_ShutdownResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  friend void swap(ShutdownResponse& a, ShutdownResponse& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ShutdownResponse* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ShutdownResponse* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ShutdownResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ShutdownResponse>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const ShutdownResponse& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const ShutdownResponse& from) {
+    ShutdownResponse::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ShutdownResponse* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "fractal.ShutdownResponse";
+  }
+  protected:
+  explicit ShutdownResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kMessageFieldNumber = 1,
+  };
+  // string message = 1;
+  void clear_message();
+  const std::string& message() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_message(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_message();
+  PROTOBUF_NODISCARD std::string* release_message();
+  void set_allocated_message(std::string* message);
+  private:
+  const std::string& _internal_message() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_message(const std::string& value);
+  std::string* _internal_mutable_message();
+  public:
+
+  // @@protoc_insertion_point(class_scope:fractal.ShutdownResponse)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr message_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -723,9 +1030,141 @@ inline void JuliaResponse::set_allocated_rgba_data(std::string* rgba_data) {
   // @@protoc_insertion_point(field_set_allocated:fractal.JuliaResponse.rgba_data)
 }
 
+// double calculation_time_ms = 2;
+inline void JuliaResponse::clear_calculation_time_ms() {
+  _impl_.calculation_time_ms_ = 0;
+}
+inline double JuliaResponse::_internal_calculation_time_ms() const {
+  return _impl_.calculation_time_ms_;
+}
+inline double JuliaResponse::calculation_time_ms() const {
+  // @@protoc_insertion_point(field_get:fractal.JuliaResponse.calculation_time_ms)
+  return _internal_calculation_time_ms();
+}
+inline void JuliaResponse::_internal_set_calculation_time_ms(double value) {
+  
+  _impl_.calculation_time_ms_ = value;
+}
+inline void JuliaResponse::set_calculation_time_ms(double value) {
+  _internal_set_calculation_time_ms(value);
+  // @@protoc_insertion_point(field_set:fractal.JuliaResponse.calculation_time_ms)
+}
+
+// string server_id = 3;
+inline void JuliaResponse::clear_server_id() {
+  _impl_.server_id_.ClearToEmpty();
+}
+inline const std::string& JuliaResponse::server_id() const {
+  // @@protoc_insertion_point(field_get:fractal.JuliaResponse.server_id)
+  return _internal_server_id();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void JuliaResponse::set_server_id(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.server_id_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:fractal.JuliaResponse.server_id)
+}
+inline std::string* JuliaResponse::mutable_server_id() {
+  std::string* _s = _internal_mutable_server_id();
+  // @@protoc_insertion_point(field_mutable:fractal.JuliaResponse.server_id)
+  return _s;
+}
+inline const std::string& JuliaResponse::_internal_server_id() const {
+  return _impl_.server_id_.Get();
+}
+inline void JuliaResponse::_internal_set_server_id(const std::string& value) {
+  
+  _impl_.server_id_.Set(value, GetArenaForAllocation());
+}
+inline std::string* JuliaResponse::_internal_mutable_server_id() {
+  
+  return _impl_.server_id_.Mutable(GetArenaForAllocation());
+}
+inline std::string* JuliaResponse::release_server_id() {
+  // @@protoc_insertion_point(field_release:fractal.JuliaResponse.server_id)
+  return _impl_.server_id_.Release();
+}
+inline void JuliaResponse::set_allocated_server_id(std::string* server_id) {
+  if (server_id != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.server_id_.SetAllocated(server_id, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.server_id_.IsDefault()) {
+    _impl_.server_id_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:fractal.JuliaResponse.server_id)
+}
+
+// -------------------------------------------------------------------
+
+// ShutdownRequest
+
+// -------------------------------------------------------------------
+
+// ShutdownResponse
+
+// string message = 1;
+inline void ShutdownResponse::clear_message() {
+  _impl_.message_.ClearToEmpty();
+}
+inline const std::string& ShutdownResponse::message() const {
+  // @@protoc_insertion_point(field_get:fractal.ShutdownResponse.message)
+  return _internal_message();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void ShutdownResponse::set_message(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.message_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:fractal.ShutdownResponse.message)
+}
+inline std::string* ShutdownResponse::mutable_message() {
+  std::string* _s = _internal_mutable_message();
+  // @@protoc_insertion_point(field_mutable:fractal.ShutdownResponse.message)
+  return _s;
+}
+inline const std::string& ShutdownResponse::_internal_message() const {
+  return _impl_.message_.Get();
+}
+inline void ShutdownResponse::_internal_set_message(const std::string& value) {
+  
+  _impl_.message_.Set(value, GetArenaForAllocation());
+}
+inline std::string* ShutdownResponse::_internal_mutable_message() {
+  
+  return _impl_.message_.Mutable(GetArenaForAllocation());
+}
+inline std::string* ShutdownResponse::release_message() {
+  // @@protoc_insertion_point(field_release:fractal.ShutdownResponse.message)
+  return _impl_.message_.Release();
+}
+inline void ShutdownResponse::set_allocated_message(std::string* message) {
+  if (message != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.message_.SetAllocated(message, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.message_.IsDefault()) {
+    _impl_.message_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:fractal.ShutdownResponse.message)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 

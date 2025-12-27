@@ -42,11 +42,20 @@ class FractalService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::fractal::JuliaResponse>> PrepareAsyncCalculateJulia(::grpc::ClientContext* context, const ::fractal::JuliaRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::fractal::JuliaResponse>>(PrepareAsyncCalculateJuliaRaw(context, request, cq));
     }
+    virtual ::grpc::Status Shutdown(::grpc::ClientContext* context, const ::fractal::ShutdownRequest& request, ::fractal::ShutdownResponse* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::fractal::ShutdownResponse>> AsyncShutdown(::grpc::ClientContext* context, const ::fractal::ShutdownRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::fractal::ShutdownResponse>>(AsyncShutdownRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::fractal::ShutdownResponse>> PrepareAsyncShutdown(::grpc::ClientContext* context, const ::fractal::ShutdownRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::fractal::ShutdownResponse>>(PrepareAsyncShutdownRaw(context, request, cq));
+    }
     class async_interface {
      public:
       virtual ~async_interface() {}
       virtual void CalculateJulia(::grpc::ClientContext* context, const ::fractal::JuliaRequest* request, ::fractal::JuliaResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void CalculateJulia(::grpc::ClientContext* context, const ::fractal::JuliaRequest* request, ::fractal::JuliaResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void Shutdown(::grpc::ClientContext* context, const ::fractal::ShutdownRequest* request, ::fractal::ShutdownResponse* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void Shutdown(::grpc::ClientContext* context, const ::fractal::ShutdownRequest* request, ::fractal::ShutdownResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
@@ -54,6 +63,8 @@ class FractalService final {
    private:
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::fractal::JuliaResponse>* AsyncCalculateJuliaRaw(::grpc::ClientContext* context, const ::fractal::JuliaRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::fractal::JuliaResponse>* PrepareAsyncCalculateJuliaRaw(::grpc::ClientContext* context, const ::fractal::JuliaRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::fractal::ShutdownResponse>* AsyncShutdownRaw(::grpc::ClientContext* context, const ::fractal::ShutdownRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::fractal::ShutdownResponse>* PrepareAsyncShutdownRaw(::grpc::ClientContext* context, const ::fractal::ShutdownRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -65,11 +76,20 @@ class FractalService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::fractal::JuliaResponse>> PrepareAsyncCalculateJulia(::grpc::ClientContext* context, const ::fractal::JuliaRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::fractal::JuliaResponse>>(PrepareAsyncCalculateJuliaRaw(context, request, cq));
     }
+    ::grpc::Status Shutdown(::grpc::ClientContext* context, const ::fractal::ShutdownRequest& request, ::fractal::ShutdownResponse* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::fractal::ShutdownResponse>> AsyncShutdown(::grpc::ClientContext* context, const ::fractal::ShutdownRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::fractal::ShutdownResponse>>(AsyncShutdownRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::fractal::ShutdownResponse>> PrepareAsyncShutdown(::grpc::ClientContext* context, const ::fractal::ShutdownRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::fractal::ShutdownResponse>>(PrepareAsyncShutdownRaw(context, request, cq));
+    }
     class async final :
       public StubInterface::async_interface {
      public:
       void CalculateJulia(::grpc::ClientContext* context, const ::fractal::JuliaRequest* request, ::fractal::JuliaResponse* response, std::function<void(::grpc::Status)>) override;
       void CalculateJulia(::grpc::ClientContext* context, const ::fractal::JuliaRequest* request, ::fractal::JuliaResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void Shutdown(::grpc::ClientContext* context, const ::fractal::ShutdownRequest* request, ::fractal::ShutdownResponse* response, std::function<void(::grpc::Status)>) override;
+      void Shutdown(::grpc::ClientContext* context, const ::fractal::ShutdownRequest* request, ::fractal::ShutdownResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
      private:
       friend class Stub;
       explicit async(Stub* stub): stub_(stub) { }
@@ -83,7 +103,10 @@ class FractalService final {
     class async async_stub_{this};
     ::grpc::ClientAsyncResponseReader< ::fractal::JuliaResponse>* AsyncCalculateJuliaRaw(::grpc::ClientContext* context, const ::fractal::JuliaRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::fractal::JuliaResponse>* PrepareAsyncCalculateJuliaRaw(::grpc::ClientContext* context, const ::fractal::JuliaRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::fractal::ShutdownResponse>* AsyncShutdownRaw(::grpc::ClientContext* context, const ::fractal::ShutdownRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::fractal::ShutdownResponse>* PrepareAsyncShutdownRaw(::grpc::ClientContext* context, const ::fractal::ShutdownRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_CalculateJulia_;
+    const ::grpc::internal::RpcMethod rpcmethod_Shutdown_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -92,6 +115,7 @@ class FractalService final {
     Service();
     virtual ~Service();
     virtual ::grpc::Status CalculateJulia(::grpc::ServerContext* context, const ::fractal::JuliaRequest* request, ::fractal::JuliaResponse* response);
+    virtual ::grpc::Status Shutdown(::grpc::ServerContext* context, const ::fractal::ShutdownRequest* request, ::fractal::ShutdownResponse* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_CalculateJulia : public BaseClass {
@@ -113,7 +137,27 @@ class FractalService final {
       ::grpc::Service::RequestAsyncUnary(0, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_CalculateJulia<Service > AsyncService;
+  template <class BaseClass>
+  class WithAsyncMethod_Shutdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithAsyncMethod_Shutdown() {
+      ::grpc::Service::MarkMethodAsync(1);
+    }
+    ~WithAsyncMethod_Shutdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status Shutdown(::grpc::ServerContext* /*context*/, const ::fractal::ShutdownRequest* /*request*/, ::fractal::ShutdownResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestShutdown(::grpc::ServerContext* context, ::fractal::ShutdownRequest* request, ::grpc::ServerAsyncResponseWriter< ::fractal::ShutdownResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(1, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  typedef WithAsyncMethod_CalculateJulia<WithAsyncMethod_Shutdown<Service > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_CalculateJulia : public BaseClass {
    private:
@@ -141,7 +185,34 @@ class FractalService final {
     virtual ::grpc::ServerUnaryReactor* CalculateJulia(
       ::grpc::CallbackServerContext* /*context*/, const ::fractal::JuliaRequest* /*request*/, ::fractal::JuliaResponse* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_CalculateJulia<Service > CallbackService;
+  template <class BaseClass>
+  class WithCallbackMethod_Shutdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithCallbackMethod_Shutdown() {
+      ::grpc::Service::MarkMethodCallback(1,
+          new ::grpc::internal::CallbackUnaryHandler< ::fractal::ShutdownRequest, ::fractal::ShutdownResponse>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::fractal::ShutdownRequest* request, ::fractal::ShutdownResponse* response) { return this->Shutdown(context, request, response); }));}
+    void SetMessageAllocatorFor_Shutdown(
+        ::grpc::MessageAllocator< ::fractal::ShutdownRequest, ::fractal::ShutdownResponse>* allocator) {
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(1);
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::fractal::ShutdownRequest, ::fractal::ShutdownResponse>*>(handler)
+              ->SetMessageAllocator(allocator);
+    }
+    ~WithCallbackMethod_Shutdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status Shutdown(::grpc::ServerContext* /*context*/, const ::fractal::ShutdownRequest* /*request*/, ::fractal::ShutdownResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* Shutdown(
+      ::grpc::CallbackServerContext* /*context*/, const ::fractal::ShutdownRequest* /*request*/, ::fractal::ShutdownResponse* /*response*/)  { return nullptr; }
+  };
+  typedef WithCallbackMethod_CalculateJulia<WithCallbackMethod_Shutdown<Service > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_CalculateJulia : public BaseClass {
@@ -156,6 +227,23 @@ class FractalService final {
     }
     // disable synchronous version of this method
     ::grpc::Status CalculateJulia(::grpc::ServerContext* /*context*/, const ::fractal::JuliaRequest* /*request*/, ::fractal::JuliaResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_Shutdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithGenericMethod_Shutdown() {
+      ::grpc::Service::MarkMethodGeneric(1);
+    }
+    ~WithGenericMethod_Shutdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status Shutdown(::grpc::ServerContext* /*context*/, const ::fractal::ShutdownRequest* /*request*/, ::fractal::ShutdownResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -181,6 +269,26 @@ class FractalService final {
     }
   };
   template <class BaseClass>
+  class WithRawMethod_Shutdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawMethod_Shutdown() {
+      ::grpc::Service::MarkMethodRaw(1);
+    }
+    ~WithRawMethod_Shutdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status Shutdown(::grpc::ServerContext* /*context*/, const ::fractal::ShutdownRequest* /*request*/, ::fractal::ShutdownResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestShutdown(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(1, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
   class WithRawCallbackMethod_CalculateJulia : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
@@ -200,6 +308,28 @@ class FractalService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     virtual ::grpc::ServerUnaryReactor* CalculateJulia(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
+  };
+  template <class BaseClass>
+  class WithRawCallbackMethod_Shutdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawCallbackMethod_Shutdown() {
+      ::grpc::Service::MarkMethodRawCallback(1,
+          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->Shutdown(context, request, response); }));
+    }
+    ~WithRawCallbackMethod_Shutdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status Shutdown(::grpc::ServerContext* /*context*/, const ::fractal::ShutdownRequest* /*request*/, ::fractal::ShutdownResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* Shutdown(
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
@@ -229,9 +359,36 @@ class FractalService final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedCalculateJulia(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::fractal::JuliaRequest,::fractal::JuliaResponse>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_CalculateJulia<Service > StreamedUnaryService;
+  template <class BaseClass>
+  class WithStreamedUnaryMethod_Shutdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithStreamedUnaryMethod_Shutdown() {
+      ::grpc::Service::MarkMethodStreamed(1,
+        new ::grpc::internal::StreamedUnaryHandler<
+          ::fractal::ShutdownRequest, ::fractal::ShutdownResponse>(
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerUnaryStreamer<
+                     ::fractal::ShutdownRequest, ::fractal::ShutdownResponse>* streamer) {
+                       return this->StreamedShutdown(context,
+                         streamer);
+                  }));
+    }
+    ~WithStreamedUnaryMethod_Shutdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status Shutdown(::grpc::ServerContext* /*context*/, const ::fractal::ShutdownRequest* /*request*/, ::fractal::ShutdownResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreamedShutdown(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::fractal::ShutdownRequest,::fractal::ShutdownResponse>* server_unary_streamer) = 0;
+  };
+  typedef WithStreamedUnaryMethod_CalculateJulia<WithStreamedUnaryMethod_Shutdown<Service > > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_CalculateJulia<Service > StreamedService;
+  typedef WithStreamedUnaryMethod_CalculateJulia<WithStreamedUnaryMethod_Shutdown<Service > > StreamedService;
 };
 
 }  // namespace fractal

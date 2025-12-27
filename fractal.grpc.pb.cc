@@ -23,6 +23,7 @@ namespace fractal {
 
 static const char* FractalService_method_names[] = {
   "/fractal.FractalService/CalculateJulia",
+  "/fractal.FractalService/Shutdown",
 };
 
 std::unique_ptr< FractalService::Stub> FractalService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -33,6 +34,7 @@ std::unique_ptr< FractalService::Stub> FractalService::NewStub(const std::shared
 
 FractalService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
   : channel_(channel), rpcmethod_CalculateJulia_(FractalService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_Shutdown_(FractalService_method_names[1], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status FractalService::Stub::CalculateJulia(::grpc::ClientContext* context, const ::fractal::JuliaRequest& request, ::fractal::JuliaResponse* response) {
@@ -58,6 +60,29 @@ void FractalService::Stub::async::CalculateJulia(::grpc::ClientContext* context,
   return result;
 }
 
+::grpc::Status FractalService::Stub::Shutdown(::grpc::ClientContext* context, const ::fractal::ShutdownRequest& request, ::fractal::ShutdownResponse* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::fractal::ShutdownRequest, ::fractal::ShutdownResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_Shutdown_, context, request, response);
+}
+
+void FractalService::Stub::async::Shutdown(::grpc::ClientContext* context, const ::fractal::ShutdownRequest* request, ::fractal::ShutdownResponse* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::fractal::ShutdownRequest, ::fractal::ShutdownResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_Shutdown_, context, request, response, std::move(f));
+}
+
+void FractalService::Stub::async::Shutdown(::grpc::ClientContext* context, const ::fractal::ShutdownRequest* request, ::fractal::ShutdownResponse* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_Shutdown_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::fractal::ShutdownResponse>* FractalService::Stub::PrepareAsyncShutdownRaw(::grpc::ClientContext* context, const ::fractal::ShutdownRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::fractal::ShutdownResponse, ::fractal::ShutdownRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_Shutdown_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::fractal::ShutdownResponse>* FractalService::Stub::AsyncShutdownRaw(::grpc::ClientContext* context, const ::fractal::ShutdownRequest& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsyncShutdownRaw(context, request, cq);
+  result->StartCall();
+  return result;
+}
+
 FractalService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       FractalService_method_names[0],
@@ -69,12 +94,29 @@ FractalService::Service::Service() {
              ::fractal::JuliaResponse* resp) {
                return service->CalculateJulia(ctx, req, resp);
              }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      FractalService_method_names[1],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< FractalService::Service, ::fractal::ShutdownRequest, ::fractal::ShutdownResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](FractalService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::fractal::ShutdownRequest* req,
+             ::fractal::ShutdownResponse* resp) {
+               return service->Shutdown(ctx, req, resp);
+             }, this)));
 }
 
 FractalService::Service::~Service() {
 }
 
 ::grpc::Status FractalService::Service::CalculateJulia(::grpc::ServerContext* context, const ::fractal::JuliaRequest* request, ::fractal::JuliaResponse* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status FractalService::Service::Shutdown(::grpc::ServerContext* context, const ::fractal::ShutdownRequest* request, ::fractal::ShutdownResponse* response) {
   (void) context;
   (void) request;
   (void) response;

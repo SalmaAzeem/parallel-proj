@@ -5,38 +5,47 @@ CLIENT_NAME="fractal_client"
 REPLICAS=2
 LOG_FILE="data/metrics_log.csv"
 
+mkdir -p data
+echo "Timestamp,Status,Latency_ms,Condition" > $LOG_FILE
+
 echo "--- Starting Performance Analysis Automation ---"
 
 echo "Step 1: Building and Scaling to $REPLICAS workers..."
-docker compose up --build --scale $SERVICE_NAME=$REPLICAS -d
+docker compose up --scale $SERVICE_NAME=$REPLICAS -d
+sleep 10 
 
-sleep 5
-
-echo "Step 2: Collecting Baseline Metrics (30s)..."
+echo "Step 2: Collecting Baseline Metrics (60s)..."
 ./$CLIENT_NAME &
 CLIENT_PID=$!
-sleep 30
 
-# --- NEW STEP: NETWORK DISRUPTION ---
-echo "Step 3: Simulating Network Disruption (30s)..."
-# We send the 'y' key to the client process to toggle simulateTimeout
-# Note: This requires the client to be the active window or handled via code logic.
-# If automation is preferred, ensure your C++ code checks for a specific trigger.
-echo "y" > /proc/$CLIENT_PID/fd/0 2>/dev/null || hide_error=1 
-sleep 30
-echo "Turning off Network Disruption..."
-echo "y" > /proc/$CLIENT_PID/fd/0 2>/dev/null || hide_error=1
 sleep 5
 
-# --- EDITED STEP: SERVICE FAILURE ---
+sleep 55
+
+echo "Step 3: Simulating Network Disruption (30s)..."
+
+if command -v xdotool &> /dev/null; then
+    xdotool key --window $(xdotool search --name "Julia Set Explorer") y
+else
+    echo "y" > /proc/$CLIENT_PID/fd/0 2>/dev/null
+fi
+sleep 30
+
+echo "Turning off Network Disruption..."
+if command -v xdotool &> /dev/null; then
+    xdotool key --window $(xdotool search --name "Julia Set Explorer") y
+else
+    echo "y" > /proc/$CLIENT_PID/fd/0 2>/dev/null
+fi
+sleep 5
+
 echo "Step 4: Injecting Failure - Stopping one instance..."
-# Using the specific command you provided earlier for a graceful gRPC shutdown
 docker compose run --rm grpcurl -plaintext fractal-worker:50051 fractal.FractalService/Shutdown
-# Also stopping the container to ensure the load balancer/client registers the hard failure
+
 WORKER_ID=$(docker ps --filter "name=${SERVICE_NAME}-2" -q)
 docker stop $WORKER_ID
 
-echo "Worker stopped. Monitoring performance during failure (30s)..."
+echo "Worker stopped. Monitoring performance (30s)..."
 sleep 30
 
 echo "Step 5: Restarting instance for recovery analysis (30s)..."

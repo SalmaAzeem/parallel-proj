@@ -46,6 +46,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR JuliaResponse::JuliaResponse(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.rgba_data_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.server_id_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.calculation_time_ms_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct JuliaResponseDefaultTypeInternal {
   PROTOBUF_CONSTEXPR JuliaResponseDefaultTypeInternal()
@@ -56,8 +58,32 @@ struct JuliaResponseDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 JuliaResponseDefaultTypeInternal _JuliaResponse_default_instance_;
+PROTOBUF_CONSTEXPR ShutdownRequest::ShutdownRequest(
+    ::_pbi::ConstantInitialized) {}
+struct ShutdownRequestDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ShutdownRequestDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ShutdownRequestDefaultTypeInternal() {}
+  union {
+    ShutdownRequest _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ShutdownRequestDefaultTypeInternal _ShutdownRequest_default_instance_;
+PROTOBUF_CONSTEXPR ShutdownResponse::ShutdownResponse(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.message_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct ShutdownResponseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ShutdownResponseDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ShutdownResponseDefaultTypeInternal() {}
+  union {
+    ShutdownResponse _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ShutdownResponseDefaultTypeInternal _ShutdownResponse_default_instance_;
 }  // namespace fractal
-static ::_pb::Metadata file_level_metadata_fractal_2eproto[2];
+static ::_pb::Metadata file_level_metadata_fractal_2eproto[4];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_fractal_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_fractal_2eproto = nullptr;
 
@@ -85,15 +111,34 @@ const uint32_t TableStruct_fractal_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::fractal::JuliaResponse, _impl_.rgba_data_),
+  PROTOBUF_FIELD_OFFSET(::fractal::JuliaResponse, _impl_.calculation_time_ms_),
+  PROTOBUF_FIELD_OFFSET(::fractal::JuliaResponse, _impl_.server_id_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::fractal::ShutdownRequest, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::fractal::ShutdownResponse, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::fractal::ShutdownResponse, _impl_.message_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::fractal::JuliaRequest)},
   { 16, -1, -1, sizeof(::fractal::JuliaResponse)},
+  { 25, -1, -1, sizeof(::fractal::ShutdownRequest)},
+  { 31, -1, -1, sizeof(::fractal::ShutdownResponse)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
   &::fractal::_JuliaRequest_default_instance_._instance,
   &::fractal::_JuliaResponse_default_instance_._instance,
+  &::fractal::_ShutdownRequest_default_instance_._instance,
+  &::fractal::_ShutdownResponse_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_fractal_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -102,16 +147,20 @@ const char descriptor_table_protodef_fractal_2eproto[] PROTOBUF_SECTION_VARIABLE
   "th\030\003 \001(\005\022\016\n\006height\030\004 \001(\005\022\026\n\016max_iteratio"
   "ns\030\005 \001(\005\022\023\n\013poly_degree\030\006 \001(\005\022\r\n\005x_min\030\007"
   " \001(\001\022\r\n\005x_max\030\010 \001(\001\022\r\n\005y_min\030\t \001(\001\022\r\n\005y_"
-  "max\030\n \001(\001\"\"\n\rJuliaResponse\022\021\n\trgba_data\030"
-  "\001 \001(\0142Q\n\016FractalService\022\?\n\016CalculateJuli"
-  "a\022\025.fractal.JuliaRequest\032\026.fractal.Julia"
-  "Responseb\006proto3"
+  "max\030\n \001(\001\"R\n\rJuliaResponse\022\021\n\trgba_data\030"
+  "\001 \001(\014\022\033\n\023calculation_time_ms\030\002 \001(\001\022\021\n\tse"
+  "rver_id\030\003 \001(\t\"\021\n\017ShutdownRequest\"#\n\020Shut"
+  "downResponse\022\017\n\007message\030\001 \001(\t2\222\001\n\016Fracta"
+  "lService\022\?\n\016CalculateJulia\022\025.fractal.Jul"
+  "iaRequest\032\026.fractal.JuliaResponse\022\?\n\010Shu"
+  "tdown\022\030.fractal.ShutdownRequest\032\031.fracta"
+  "l.ShutdownResponseb\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_fractal_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_fractal_2eproto = {
-    false, false, 336, descriptor_table_protodef_fractal_2eproto,
+    false, false, 506, descriptor_table_protodef_fractal_2eproto,
     "fractal.proto",
-    &descriptor_table_fractal_2eproto_once, nullptr, 0, 2,
+    &descriptor_table_fractal_2eproto_once, nullptr, 0, 4,
     schemas, file_default_instances, TableStruct_fractal_2eproto::offsets,
     file_level_metadata_fractal_2eproto, file_level_enum_descriptors_fractal_2eproto,
     file_level_service_descriptors_fractal_2eproto,
@@ -616,6 +665,8 @@ JuliaResponse::JuliaResponse(const JuliaResponse& from)
   JuliaResponse* const _this = this; (void)_this;
   new (&_impl_) Impl_{
       decltype(_impl_.rgba_data_){}
+    , decltype(_impl_.server_id_){}
+    , decltype(_impl_.calculation_time_ms_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -627,6 +678,15 @@ JuliaResponse::JuliaResponse(const JuliaResponse& from)
     _this->_impl_.rgba_data_.Set(from._internal_rgba_data(), 
       _this->GetArenaForAllocation());
   }
+  _impl_.server_id_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.server_id_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_server_id().empty()) {
+    _this->_impl_.server_id_.Set(from._internal_server_id(), 
+      _this->GetArenaForAllocation());
+  }
+  _this->_impl_.calculation_time_ms_ = from._impl_.calculation_time_ms_;
   // @@protoc_insertion_point(copy_constructor:fractal.JuliaResponse)
 }
 
@@ -636,11 +696,17 @@ inline void JuliaResponse::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.rgba_data_){}
+    , decltype(_impl_.server_id_){}
+    , decltype(_impl_.calculation_time_ms_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.rgba_data_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.rgba_data_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.server_id_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.server_id_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
@@ -656,6 +722,7 @@ JuliaResponse::~JuliaResponse() {
 inline void JuliaResponse::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   _impl_.rgba_data_.Destroy();
+  _impl_.server_id_.Destroy();
 }
 
 void JuliaResponse::SetCachedSize(int size) const {
@@ -669,6 +736,8 @@ void JuliaResponse::Clear() {
   (void) cached_has_bits;
 
   _impl_.rgba_data_.ClearToEmpty();
+  _impl_.server_id_.ClearToEmpty();
+  _impl_.calculation_time_ms_ = 0;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -684,6 +753,24 @@ const char* JuliaResponse::_InternalParse(const char* ptr, ::_pbi::ParseContext*
           auto str = _internal_mutable_rgba_data();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // double calculation_time_ms = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 17)) {
+          _impl_.calculation_time_ms_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr);
+          ptr += sizeof(double);
+        } else
+          goto handle_unusual;
+        continue;
+      // string server_id = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+          auto str = _internal_mutable_server_id();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "fractal.JuliaResponse.server_id"));
         } else
           goto handle_unusual;
         continue;
@@ -722,6 +809,26 @@ uint8_t* JuliaResponse::_InternalSerialize(
         1, this->_internal_rgba_data(), target);
   }
 
+  // double calculation_time_ms = 2;
+  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
+  double tmp_calculation_time_ms = this->_internal_calculation_time_ms();
+  uint64_t raw_calculation_time_ms;
+  memcpy(&raw_calculation_time_ms, &tmp_calculation_time_ms, sizeof(tmp_calculation_time_ms));
+  if (raw_calculation_time_ms != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteDoubleToArray(2, this->_internal_calculation_time_ms(), target);
+  }
+
+  // string server_id = 3;
+  if (!this->_internal_server_id().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_server_id().data(), static_cast<int>(this->_internal_server_id().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "fractal.JuliaResponse.server_id");
+    target = stream->WriteStringMaybeAliased(
+        3, this->_internal_server_id(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -745,6 +852,22 @@ size_t JuliaResponse::ByteSizeLong() const {
         this->_internal_rgba_data());
   }
 
+  // string server_id = 3;
+  if (!this->_internal_server_id().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_server_id());
+  }
+
+  // double calculation_time_ms = 2;
+  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
+  double tmp_calculation_time_ms = this->_internal_calculation_time_ms();
+  uint64_t raw_calculation_time_ms;
+  memcpy(&raw_calculation_time_ms, &tmp_calculation_time_ms, sizeof(tmp_calculation_time_ms));
+  if (raw_calculation_time_ms != 0) {
+    total_size += 1 + 8;
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -765,6 +888,16 @@ void JuliaResponse::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::
 
   if (!from._internal_rgba_data().empty()) {
     _this->_internal_set_rgba_data(from._internal_rgba_data());
+  }
+  if (!from._internal_server_id().empty()) {
+    _this->_internal_set_server_id(from._internal_server_id());
+  }
+  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
+  double tmp_calculation_time_ms = from._internal_calculation_time_ms();
+  uint64_t raw_calculation_time_ms;
+  memcpy(&raw_calculation_time_ms, &tmp_calculation_time_ms, sizeof(tmp_calculation_time_ms));
+  if (raw_calculation_time_ms != 0) {
+    _this->_internal_set_calculation_time_ms(from._internal_calculation_time_ms());
   }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -789,12 +922,260 @@ void JuliaResponse::InternalSwap(JuliaResponse* other) {
       &_impl_.rgba_data_, lhs_arena,
       &other->_impl_.rgba_data_, rhs_arena
   );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.server_id_, lhs_arena,
+      &other->_impl_.server_id_, rhs_arena
+  );
+  swap(_impl_.calculation_time_ms_, other->_impl_.calculation_time_ms_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata JuliaResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_fractal_2eproto_getter, &descriptor_table_fractal_2eproto_once,
       file_level_metadata_fractal_2eproto[1]);
+}
+
+// ===================================================================
+
+class ShutdownRequest::_Internal {
+ public:
+};
+
+ShutdownRequest::ShutdownRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
+  // @@protoc_insertion_point(arena_constructor:fractal.ShutdownRequest)
+}
+ShutdownRequest::ShutdownRequest(const ShutdownRequest& from)
+  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
+  ShutdownRequest* const _this = this; (void)_this;
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:fractal.ShutdownRequest)
+}
+
+
+
+
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ShutdownRequest::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl,
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl,
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ShutdownRequest::GetClassData() const { return &_class_data_; }
+
+
+
+
+
+
+
+::PROTOBUF_NAMESPACE_ID::Metadata ShutdownRequest::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_fractal_2eproto_getter, &descriptor_table_fractal_2eproto_once,
+      file_level_metadata_fractal_2eproto[2]);
+}
+
+// ===================================================================
+
+class ShutdownResponse::_Internal {
+ public:
+};
+
+ShutdownResponse::ShutdownResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:fractal.ShutdownResponse)
+}
+ShutdownResponse::ShutdownResponse(const ShutdownResponse& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  ShutdownResponse* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.message_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _impl_.message_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.message_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_message().empty()) {
+    _this->_impl_.message_.Set(from._internal_message(), 
+      _this->GetArenaForAllocation());
+  }
+  // @@protoc_insertion_point(copy_constructor:fractal.ShutdownResponse)
+}
+
+inline void ShutdownResponse::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.message_){}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.message_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.message_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+}
+
+ShutdownResponse::~ShutdownResponse() {
+  // @@protoc_insertion_point(destructor:fractal.ShutdownResponse)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void ShutdownResponse::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.message_.Destroy();
+}
+
+void ShutdownResponse::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void ShutdownResponse::Clear() {
+// @@protoc_insertion_point(message_clear_start:fractal.ShutdownResponse)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.message_.ClearToEmpty();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* ShutdownResponse::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // string message = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          auto str = _internal_mutable_message();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "fractal.ShutdownResponse.message"));
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* ShutdownResponse::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:fractal.ShutdownResponse)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // string message = 1;
+  if (!this->_internal_message().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_message().data(), static_cast<int>(this->_internal_message().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "fractal.ShutdownResponse.message");
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_message(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:fractal.ShutdownResponse)
+  return target;
+}
+
+size_t ShutdownResponse::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:fractal.ShutdownResponse)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // string message = 1;
+  if (!this->_internal_message().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_message());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ShutdownResponse::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    ShutdownResponse::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ShutdownResponse::GetClassData() const { return &_class_data_; }
+
+
+void ShutdownResponse::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<ShutdownResponse*>(&to_msg);
+  auto& from = static_cast<const ShutdownResponse&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:fractal.ShutdownResponse)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_message().empty()) {
+    _this->_internal_set_message(from._internal_message());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void ShutdownResponse::CopyFrom(const ShutdownResponse& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:fractal.ShutdownResponse)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ShutdownResponse::IsInitialized() const {
+  return true;
+}
+
+void ShutdownResponse::InternalSwap(ShutdownResponse* other) {
+  using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.message_, lhs_arena,
+      &other->_impl_.message_, rhs_arena
+  );
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata ShutdownResponse::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_fractal_2eproto_getter, &descriptor_table_fractal_2eproto_once,
+      file_level_metadata_fractal_2eproto[3]);
 }
 
 // @@protoc_insertion_point(namespace_scope)
@@ -807,6 +1188,14 @@ Arena::CreateMaybeMessage< ::fractal::JuliaRequest >(Arena* arena) {
 template<> PROTOBUF_NOINLINE ::fractal::JuliaResponse*
 Arena::CreateMaybeMessage< ::fractal::JuliaResponse >(Arena* arena) {
   return Arena::CreateMessageInternal< ::fractal::JuliaResponse >(arena);
+}
+template<> PROTOBUF_NOINLINE ::fractal::ShutdownRequest*
+Arena::CreateMaybeMessage< ::fractal::ShutdownRequest >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::fractal::ShutdownRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::fractal::ShutdownResponse*
+Arena::CreateMaybeMessage< ::fractal::ShutdownResponse >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::fractal::ShutdownResponse >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 
