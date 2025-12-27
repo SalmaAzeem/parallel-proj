@@ -77,6 +77,9 @@ class FractalServiceImpl final : public fractal::FractalService::Service
 
 int main()
 {
+    std::cout<<"delaying .....\n";
+    sleep(5);
+    std::cout<<"server starting\n";
     grpc::reflection::InitProtoReflectionServerBuilderPlugin();
 
     std::string server_address("0.0.0.0:50051");
