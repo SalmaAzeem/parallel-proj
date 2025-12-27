@@ -17,6 +17,8 @@ message JuliaRequest {
 
 message JuliaResponse {
     bytes rgba_data = 1; // The raw pixel array
+    double calculation_time_ms = 2; // Server-side calculation time in milliseconds
+    string server_id = 3; // Which server handled this request
 }
 
 message ShutdownRequest {}

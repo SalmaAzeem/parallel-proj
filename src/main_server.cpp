@@ -6,6 +6,7 @@
 #include "headers/ParallelCalculator.hpp"
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 #include<thread>
+#include<unistd.h>
 #include <chrono>
 
 using fractal::JuliaRequest;
@@ -20,6 +21,10 @@ std::unique_ptr<grpc::Server> g_server;
 class FractalServiceImpl final : public fractal::FractalService::Service
 {
     ParallelCalculator calculator;
+    std::string server_id_;
+
+    public:
+        FractalServiceImpl(const std::string& server_id) : server_id_(server_id) {}
     bool timeout_state = false;
 
     Status CalculateJulia(ServerContext *context, const JuliaRequest *request, JuliaResponse *response) override
@@ -37,7 +42,7 @@ class FractalServiceImpl final : public fractal::FractalService::Service
         sf::Image image;
         image.create(request->width(), request->height());
 
-        calculator.calculate_polynomial(
+        double calc_time_sec = calculator.calculate_polynomial(
             image,
             std::complex<double>(request->c_real(), request->c_imag()),
             request->max_iterations(),
@@ -48,6 +53,8 @@ class FractalServiceImpl final : public fractal::FractalService::Service
         const sf::Uint8 *pixelPtr = image.getPixelsPtr();
         size_t totalBytes = request->width() * request->height() * 4;
         response->set_rgba_data(pixelPtr, totalBytes);
+        response->set_calculation_time_ms(calc_time_sec * 1000.0);
+        response->set_server_id(server_id_);
 
         return Status::OK;
     }
@@ -73,18 +80,19 @@ int main()
     grpc::reflection::InitProtoReflectionServerBuilderPlugin();
 
     std::string server_address("0.0.0.0:50051");
-    FractalServiceImpl service;
+    
+    char hostname[256];
+    gethostname(hostname, sizeof(hostname));
+    std::string server_id = std::string(hostname) + ":50051";
+    
+    FractalServiceImpl service(server_id);
     ServerBuilder builder;
 
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
     builder.RegisterService(&service);
 
-    // std::unique_ptr<Server> server(builder.BuildAndStart());
-    // std::cout << "Fractal Server (Replica) running on " << server_address << std::endl;
-    // server->Wait();
-
     g_server = builder.BuildAndStart();
-    std::cout << "Fractal Server running on " << server_address << std::endl;
+    std::cout << "Fractal Server running on " << server_address << " (id: " << server_id << ")" << std::endl;
 
     g_server->Wait(); 
     std::cout << "Server stopped" << std::endl;
