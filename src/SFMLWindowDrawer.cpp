@@ -2,6 +2,7 @@
 #include <typeinfo>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <omp.h>
 #include <thread>
 #include <chrono>
@@ -384,9 +385,6 @@ void SFMLWindowDrawer::recalculateFractal()
 {
     auto start = std::chrono::high_resolution_clock::now();
 
-    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    std::cout << "[" << std::put_time(std::localtime(&now), "%H:%M:%S") << "] Sending request to replicas..." << std::endl;
-
     fractal::JuliaRequest request;
     request.set_c_real(current_c.real());
     request.set_c_imag(current_c.imag());
@@ -406,12 +404,24 @@ void SFMLWindowDrawer::recalculateFractal()
     if (simulateTimeout)
     {
         context.AddMetadata("x-simulate-unavailability", "1");
-
-        std::cout << "[INFO] Simulating timeout: deadline set to 100ms and metadata added\n";
+        std::cout << "[INFO] Simulating disruption via metadata..." << std::endl;
     }
 
     grpc::Status status = stub_->CalculateJulia(&context, request, &response);
+    
     auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> latency = end - start;
+
+    std::ofstream logFile("data/metrics_log.csv", std::ios::app);
+    if (logFile.is_open()) 
+    {
+        auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        logFile << std::put_time(std::localtime(&now), "%Y-%m-%d %H:%M:%S") << ","
+                << (status.ok() ? "SUCCESS" : "FAILURE") << ","
+                << latency.count() << ","
+                << (simulateTimeout ? "DISRUPTED" : "NORMAL") << "\n";
+        logFile.close();
+    }
 
     if (status.ok())
     {
@@ -419,11 +429,11 @@ void SFMLWindowDrawer::recalculateFractal()
         fractalImage.create(request.width(), request.height(),
                             reinterpret_cast<const sf::Uint8 *>(pixelData.data()));
         fractalTexture.update(fractalImage);
-        std::chrono::duration<double, std::milli> latency = end - start;
-        std::cout << "[SUCCESS] Received frame. Latency: " << latency.count() << " ms" << std::endl;
+        std::cout << "[SUCCESS] Latency: " << latency.count() << " ms" << std::endl;
     }
     else
     {
-        std::cerr << "[ERROR] gRPC failed: " << status.error_message() << std::endl;
+        std::cerr << "[ERROR] gRPC failed: " << status.error_message() 
+                  << " (Latency: " << latency.count() << "ms)" << std::endl;
     }
 }
