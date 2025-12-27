@@ -292,11 +292,6 @@ void SFMLWindowDrawer::processEvents()
                 std::cout << "Simulate timeout: " << (simulateTimeout ? "ON" : "OFF") << std::endl;
                 needsRecalculation = true;
                 break;
-            case sf::Keyboard::K:
-                simulateShutdown = !simulateShutdown;
-                std::cout << "Simulate shutdown: " << (simulateShutdown ? "ON" : "OFF") << std::endl;
-                needsRecalculation = true;
-                break;
             default:
                 break;
             }
@@ -326,7 +321,6 @@ void SFMLWindowDrawer::updateUI()
     ss_params << "C = " << current_c.real() << (current_c.imag() >= 0 ? " + " : " - ")
               << std::abs(current_c.imag()) << "i  |  Poly: " << current_poly_degree;
     ss_params << "  |  SimTimeout: " << (simulateTimeout ? "ON" : "OFF");
-    ss_params << "  |  SimShutdown: " << (simulateShutdown ? "ON" : "OFF");
     textParams.setString(ss_params.str());
 
     std::stringstream ss_theme;
